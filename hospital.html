@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediRoute - Hospital Access</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Your existing CSS remains exactly the same */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #e63946;
+            --secondary: #1d3557;
+            --accent: #457b9d;
+            --light: #f1faee;
+            --dark: #0d1b2a;
+            --success: #4CAF50;
+            --warning: #FF9800;
+            --danger: #F44336;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            color: var(--primary);
+            font-size: 28px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            color: var(--secondary);
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        .hospital-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .hospital-badge {
+            background: var(--accent);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--secondary);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--primary);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 100px;
+            padding: 20px 0;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .page-title h2 {
+            font-size: 36px;
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .page-title p {
+            color: #666;
+            font-size: 18px;
+        }
+
+        /* Dashboard Layout */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Hospital Status Card */
+        .status-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .status-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .status-icon {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(69, 123, 157, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+
+        .status-icon i {
+            font-size: 24px;
+            color: var(--accent);
+        }
+
+        .status-header h3 {
+            font-size: 22px;
+            color: var(--secondary);
+        }
+
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .resource-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .resource-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .resource-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .availability-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .status-available {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: var(--success);
+        }
+
+        .status-limited {
+            background-color: rgba(255, 152, 0, 0.1);
+            color: var(--warning);
+        }
+
+        .status-full {
+            background-color: rgba(244, 67, 54, 0.1);
+            color: var(--danger);
+        }
+
+        /* Incoming Patients Section */
+        .incoming-patients {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 40px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .section-header h3 {
+            font-size: 24px;
+            color: var(--secondary);
+        }
+
+        .patient-alert {
+            background: var(--primary);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .patient-card {
+            border: 2px solid #eaeaea;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+
+        .patient-card.urgent {
+            border-color: var(--primary);
+            background-color: rgba(230, 57, 70, 0.05);
+        }
+
+        .patient-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .patient-info h4 {
+            font-size: 20px;
+            color: var(--secondary);
+            margin-bottom: 5px;
+        }
+
+        .patient-meta {
+            display: flex;
+            gap: 15px;
+            color: #666;
+        }
+
+        .patient-eta {
+            background: var(--accent);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-weight: 600;
+        }
+
+        .patient-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .detail-group h5 {
+            color: var(--secondary);
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .detail-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .detail-value {
+            color: var(--secondary);
+            font-weight: 600;
+        }
+
+        .medical-needs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .need-tag {
+            background: rgba(69, 123, 157, 0.1);
+            color: var(--accent);
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .admit-button {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            flex: 1;
+        }
+
+        .admit-button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .decline-button {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            flex: 1;
+        }
+
+        .decline-button:hover {
+            background: #d32f2f;
+            transform: translateY(-2px);
+        }
+
+        .decision-reason {
+            margin-top: 15px;
+            display: none;
+        }
+
+        .reason-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            resize: vertical;
+            min-height: 80px;
+            margin-bottom: 10px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+        
+        .reason-textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(69, 123, 157, 0.2);
+        }
+
+        .submit-reason {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Decision Notification */
+        .decision-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            z-index: 1001;
+            display: none;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .notification-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 40px;
+        }
+
+        .icon-admit {
+            background: rgba(76, 175, 80, 0.1);
+            color: var(--success);
+        }
+
+        .icon-decline {
+            background: rgba(244, 67, 54, 0.1);
+            color: var(--danger);
+        }
+
+        .notification-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .notification-button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .button-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .button-secondary {
+            background: #f0f0f0;
+            color: var(--secondary);
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 40px 0 20px;
+            margin-top: 60px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+
+        .footer-column h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background-color: var(--primary);
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 12px;
+        }
+
+        .footer-column a {
+            color: #aaa;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-column a:hover {
+            color: white;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+        }
+
+        .social-links a:hover {
+            background-color: var(--primary);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            nav ul {
+                gap: 15px;
+            }
+            
+            .page-title h2 {
+                font-size: 28px;
+            }
+            
+            .patient-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .resources-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .notification-buttons {
+                flex-direction: column;
+            }
+        }
+
+        /* NEW STYLES FOR PATIENT DETAILS MODAL */
+        .patient-details-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1002;
+            display: none;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 30px;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .modal-header {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .modal-header h3 {
+            font-size: 28px;
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .patient-status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+
+        .status-pending {
+            background: rgba(255, 152, 0, 0.1);
+            color: var(--warning);
+        }
+
+        .detail-section {
+            margin-bottom: 25px;
+        }
+
+        .detail-section h4 {
+            font-size: 20px;
+            color: var(--secondary);
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .detail-field {
+            margin-bottom: 12px;
+        }
+
+        .detail-field strong {
+            display: block;
+            color: var(--secondary);
+            margin-bottom: 5px;
+        }
+
+        .detail-field span {
+            color: #555;
+        }
+
+        .medical-resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .resource-check {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .resource-check.required {
+            background: rgba(230, 57, 70, 0.1);
+            border-left: 3px solid var(--primary);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .modal-actions button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .view-details-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .view-details-btn:hover {
+            background: #3a6a8a;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <i class="fas fa-hospital"></i>
+                <h1>Medi <span>Route</span></h1>
+            </div>
+
+            <nav>
+                <ul>
+                    <li><a href="home.html"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="#"><i class="fas fa-user-md"></i> Hospital Access</a></li>
+                    <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+                </ul>
+            </nav>
+            
+            <div class="hospital-info">
+                <div class="hospital-badge">
+                    <i class="fas fa-hospital"></i> City General Hospital
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container main-content">
+        <!-- Page Title -->
+        <div class="page-title">
+            <h2>Hospital Emergency Dashboard</h2>
+            <p>Manage incoming patients and coordinate with ambulance services</p>
+        </div>
+
+        <!-- Dashboard -->
+        <div class="dashboard">
+            <!-- Hospital Status Card -->
+            <div class="status-card">
+                <div class="status-header">
+                    <div class="status-icon">
+                        <i class="fas fa-hospital-user"></i>
+                    </div>
+                    <h3>Hospital Capacity Status</h3>
+                </div>
+                
+                <div class="resources-grid">
+                    <div class="resource-item">
+                        <div class="resource-value" id="icu-available">8</div>
+                        <div class="resource-label">ICU Beds Available</div>
+                    </div>
+                    <div class="resource-item">
+                        <div class="resource-value" id="ventilators-available">5</div>
+                        <div class="resource-label">Ventilators Available</div>
+                    </div>
+                    <div class="resource-item">
+                        <div class="resource-value" id="er-beds">12</div>
+                        <div class="resource-label">ER Beds Available</div>
+                    </div>
+                </div>
+                
+                <div class="availability-status status-available" id="availability-status">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Accepting Emergency Patients</span>
+                </div>
+            </div>
+
+            <!-- Current Alerts Card -->
+            <div class="status-card">
+                <div class="status-header">
+                    <div class="status-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h3>Current Alerts</h3>
+                </div>
+                
+                <div class="alert-list">
+                    <div class="alert-item">
+                        <div class="alert-message">
+                            <i class="fas fa-ambulance" style="color: var(--primary);"></i>
+                            <span><strong>2 ambulances</strong> en route to hospital</span>
+                        </div>
+                    </div>
+                    <div class="alert-item">
+                        <div class="alert-message">
+                            <i class="fas fa-exclamation-triangle" style="color: var(--warning);"></i>
+                            <span><strong>Cardiac team</strong> on standby</span>
+                        </div>
+                    </div>
+                    <div class="alert-item">
+                        <div class="alert-message">
+                            <i class="fas fa-clock" style="color: var(--accent);"></i>
+                            <span>Next ambulance ETA: <strong id="next-eta">8 minutes</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Incoming Patients Section -->
+        <div class="incoming-patients">
+            <div class="section-header">
+                <h3>Incoming Patient Requests</h3>
+                <div class="patient-alert">
+                    <i class="fas fa-ambulance"></i>
+                    <span id="incoming-count">1 Patient Request</span>
+                </div>
+            </div>
+
+            <!-- Patient cards will be dynamically loaded here -->
+            <div id="no-patients-message" style="text-align: center; padding: 40px; color: #666;">
+                <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 20px; opacity: 0.5;"></i>
+                <h4>No Incoming Patient Requests</h4>
+                <p>Patient requests from ambulances will appear here in real-time.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: Patient Details Modal -->
+    <div class="patient-details-modal" id="patientDetailsModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closePatientModal()">&times;</button>
+            
+            <div class="modal-header">
+                <h3 id="modalPatientName">Patient Name</h3>
+                <span class="patient-status-badge status-pending" id="modalPatientStatus">PENDING REVIEW</span>
+            </div>
+
+            <div class="detail-section">
+                <h4>Personal Information</h4>
+                <div class="detail-grid">
+                    <div class="detail-field">
+                        <strong>Age</strong>
+                        <span id="modalPatientAge">-</span>
+                    </div>
+                    <div class="detail-field">
+                        <strong>Gender</strong>
+                        <span id="modalPatientGender">-</span>
+                    </div>
+                    <div class="detail-field">
+                        <strong>Medical Condition</strong>
+                        <span id="modalPatientCondition">-</span>
+                    </div>
+                    <div class="detail-field">
+                        <strong>Known Allergies</strong>
+                        <span id="modalPatientAllergies">None reported</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-section">
+                <h4>Vital Signs</h4>
+                <div class="detail-grid">
+                    <div class="detail-field">
+                        <strong>Blood Pressure</strong>
+                        <span id="modalPatientBP">-</span>
+                    </div>
+                    <div class="detail-field">
+                        <strong>Heart Rate</strong>
+                        <span id="modalPatientHR">-</span>
+                    </div>
+                    <div class="detail-field">
+                        <strong>Oxygen Saturation</strong>
+                        <span id="modalPatientO2">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-section">
+                <h4>Required Medical Resources</h4>
+                <div class="medical-resources-grid" id="modalMedicalResources">
+                    <!-- Resources will be populated here -->
+                </div>
+            </div>
+
+            <div class="detail-section">
+                <h4>Additional Medical Notes</h4>
+                <div class="detail-field">
+                    <span id="modalPatientNotes">No additional notes provided.</span>
+                </div>
+            </div>
+
+            <div class="detail-section">
+                <h4>Ambulance & Driver Information</h4>
+                <div class="detail-grid">
+                    <div class="detail-field">
+                        <strong>Driver Name</strong>
+                        <span id="modalDriverName">Unknown Driver</span>
+                    </div>
+                    <div class="detail-field">
+                        <strong>Driver Phone</strong>
+                        <span id="modalDriverPhone">(555) 123-4567</span>
+                    </div>
+                    <div class="detail-field">
+                        <strong>Driver Email</strong>
+                        <span id="modalDriverEmail">driver@mediroute.com</span>
+                    </div>
+                    <div class="detail-field">
+                        <strong>License Number</strong>
+                        <span id="modalDriverLicense">DL123456</span>
+                    </div>
+                    <div class="detail-field">
+                        <strong>Estimated Arrival</strong>
+                        <span id="modalETA">8-15 minutes</span>
+                    </div>
+                    <div class="detail-field">
+                        <strong>Request Submitted</strong>
+                        <span id="modalSubmittedTime">Just now</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-actions" id="modalActions">
+                <button class="admit-button" id="modalAdmitBtn" onclick="admitPatientFromModal()">
+                    <i class="fas fa-check"></i> Admit Patient
+                </button>
+                <button class="decline-button" id="modalDeclineBtn" onclick="showDeclineReasonFromModal()">
+                    <i class="fas fa-times"></i> Decline Admission
+                </button>
+            </div>
+
+            <div class="decision-reason" id="modalReasonSection" style="display: none;">
+                <textarea class="reason-textarea" placeholder="Please provide reason for declining admission (e.g., no ICU beds, specialized care needed elsewhere...)" id="modalReasonTextarea"></textarea>
+                <div style="margin-top: 10px;">
+                    <button class="submit-reason" onclick="declinePatientFromModal()">Submit Decline Reason</button>
+                    <button class="submit-reason" onclick="cancelDeclineFromModal()" style="background: #666; margin-left: 10px;">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Decision Notification -->
+    <div class="decision-notification" id="admit-notification">
+        <div class="notification-icon icon-admit">
+            <i class="fas fa-check"></i>
+        </div>
+        <h3>Patient Admitted Successfully!</h3>
+        <p>John Doe has been admitted to City General Hospital. The ambulance has been notified and medical teams are preparing for arrival.</p>
+        <div class="notification-buttons">
+            <button class="notification-button button-primary" onclick="closeNotification('admit-notification')">
+                Continue
+            </button>
+        </div>
+    </div>
+
+    <div class="decision-notification" id="decline-notification">
+        <div class="notification-icon icon-decline">
+            <i class="fas fa-times"></i>
+        </div>
+        <h3>Admission Declined</h3>
+        <p>The patient admission request has been declined. The ambulance driver has been notified and can now select another hospital.</p>
+        <div class="notification-buttons">
+            <button class="notification-button button-primary" onclick="closeNotification('decline-notification')">
+                Continue
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Medi Route</h3>
+                    <p>An IoT-based Smart Ambulance Traffic Control System designed to improve emergency medical response and save lives.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="https://www.linkedin.com/in/navaneethan-sankar-743751367/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://www.linkedin.com/in/niranjan-gobinathan-0b67b4321/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://www.instagram.com/n.o.v.a.__.18/" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.instagram.com/nirxnjxn_off_/" target="_blank"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Hospital Resources</h3>
+                    <ul>
+                        <li><a href="#">Emergency Protocols</a></li>
+                        <li><a href="#">Staff Directory</a></li>
+                        <li><a href="#">Medical Equipment</a></li>
+                        <li><a href="#">Bed Management</a></li>
+                        <li><a href="#">Emergency Contacts</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contact Emergency Dept</h3>
+                    <ul>
+                        <li><i class="fas fa-phone"></i> Emergency: 9342512455, 8825905640</li>
+                        <li><i class="fas fa-envelope"></i> emergency@citygeneral.org</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Valluvar Hostel Room No: 117, Kongu Engineering College</li>
+                        <li><i class="fas fa-clock"></i> 24/7 Emergency Department</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 Medi Route. All rights reserved. Created by Niranjan, Navaneethan & Nishant</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="patient-data.js"></script>
+    <script>
+        // Hospital Interface - Enhanced with real backend integration
+        const hospitalCapacity = {
+            icuBeds: 8,
+            ventilators: 5,
+            erBeds: 12,
+            cardiacTeams: 3
+        };
+
+        let currentPatientInModal = null;
+
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            updateHospitalStatus();
+            loadIncomingPatients();
+            simulateRealTimeUpdates();
+            
+            // Check for new patients every 3 seconds
+            setInterval(loadIncomingPatients, 3000);
+        });
+
+        // Load incoming patients from backend
+        async function loadIncomingPatients() {
+            try {
+                // Fetch pending patients from backend
+                const response = await fetch('http://localhost:5000/api/patients/pending');
+                const pendingPatients = await response.json();
+                
+                const incomingSection = document.querySelector('.incoming-patients');
+                const noPatientsMessage = document.getElementById('no-patients-message');
+                
+                // Update count
+                document.getElementById('incoming-count').textContent = 
+                    pendingPatients.length + ' Patient Request' + (pendingPatients.length !== 1 ? 's' : '');
+                
+                // Clear existing patient cards
+                const existingCards = incomingSection.querySelectorAll('.patient-card');
+                existingCards.forEach(card => card.remove());
+                
+                if (pendingPatients.length === 0) {
+                    noPatientsMessage.style.display = 'block';
+                } else {
+                    noPatientsMessage.style.display = 'none';
+                    pendingPatients.forEach(patient => {
+                        const patientCard = createPatientCard(patient);
+                        incomingSection.appendChild(patientCard);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading patients:', error);
+                showNoConnectionMessage();
+            }
+        }
+
+        // Show no connection message
+        function showNoConnectionMessage() {
+            const incomingSection = document.querySelector('.incoming-patients');
+            const noPatientsMessage = document.getElementById('no-patients-message');
+            
+            document.getElementById('incoming-count').textContent = '0 Patient Requests';
+            
+            const existingCards = incomingSection.querySelectorAll('.patient-card');
+            existingCards.forEach(card => card.remove());
+            
+            noPatientsMessage.innerHTML = `
+                <i class="fas fa-wifi" style="font-size: 48px; margin-bottom: 20px; opacity: 0.5; color: #e63946;"></i>
+                <h4>Unable to Connect to Server</h4>
+                <p>Cannot load patient requests. Please check your connection and try again.</p>
+                <button onclick="loadIncomingPatients()" style="margin-top: 15px; padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 5px; cursor: pointer;">Retry</button>
+            `;
+            noPatientsMessage.style.display = 'block';
+        }
+
+
+
+        // Create patient card HTML
+        function createPatientCard(patient) {
+            const card = document.createElement('div');
+            card.className = 'patient-card urgent';
+            card.id = patient._id || patient.id;
+            
+            const vitalSigns = [];
+            if (patient.bloodPressure) vitalSigns.push(`BP: ${patient.bloodPressure}`);
+            if (patient.heartRate) vitalSigns.push(`HR: ${patient.heartRate}`);
+            if (patient.oxygenSaturation) vitalSigns.push(`O2: ${patient.oxygenSaturation}%`);
+            
+            const timeAgo = getTimeAgo(new Date(patient.createdAt));
+            const patientName = patient.patientName || 'Unknown Patient';
+            const condition = patient.medicalCondition || 'Unknown';
+            
+            card.innerHTML = `
+                <div class="patient-card-header">
+                    <div class="patient-info">
+                        <h4>${patientName}</h4>
+                        <div class="patient-meta">
+                            <span>${patient.age || 'Unknown'} years • ${patient.gender || 'Unknown'}</span>
+                            <span>${condition}</span>
+                            <span>Submitted ${timeAgo}</span>
+                        </div>
+                        <div class="patient-meta" style="margin-top: 5px; color: #666;">
+                            <span><i class="fas fa-user"></i> Driver: ${patient.driverName || 'Unknown'}</span>
+                            <span><i class="fas fa-phone"></i> ${patient.driverPhone || 'N/A'}</span>
+                        </div>
+                    </div>
+                    <div class="patient-eta">
+                        <i class="fas fa-clock"></i>
+                        <span>ETA: 8-15 min</span>
+                    </div>
+                </div>
+
+                <div class="patient-details">
+                    <div class="detail-group">
+                        <h5>Medical Information</h5>
+                        <div class="detail-item">
+                            <span class="detail-label">Condition:</span>
+                            <span class="detail-value">${condition}</span>
+                        </div>
+                        ${vitalSigns.length > 0 ? `
+                        <div class="detail-item">
+                            <span class="detail-label">Vital Signs:</span>
+                            <span class="detail-value">${vitalSigns.join(', ')}</span>
+                        </div>` : ''}
+                        ${patient.allergies ? `
+                        <div class="detail-item">
+                            <span class="detail-label">Allergies:</span>
+                            <span class="detail-value">${patient.allergies}</span>
+                        </div>` : ''}
+                    </div>
+                    
+                    <div class="detail-group">
+                        <h5>Required Resources</h5>
+                        <div class="medical-needs">
+                            ${(patient.medicalNeeds || []).slice(0, 3).map(need => `<span class="need-tag">${need}</span>`).join('')}
+                            ${(patient.medicalNeeds || []).length > 3 ? `<span class="need-tag">+${(patient.medicalNeeds || []).length - 3} more</span>` : ''}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons" id="actions-${patient._id || patient.id}">
+                    <button class="view-details-btn" onclick="viewPatientDetails('${patient._id || patient.id}')">
+                        <i class="fas fa-file-medical"></i> View Full Details
+                    </button>
+                    <button class="admit-button" onclick="admitPatient('${patient._id || patient.id}')">
+                        <i class="fas fa-check"></i> Admit Patient
+                    </button>
+                    <button class="decline-button" onclick="showDeclineReason('${patient._id || patient.id}')">
+                        <i class="fas fa-times"></i> Decline Admission
+                    </button>
+                </div>
+
+                <div class="decision-reason" id="reason-${patient._id || patient.id}" style="display: none;">
+                    <textarea class="reason-textarea" placeholder="Please provide reason for declining admission (e.g., no ICU beds, specialized care needed elsewhere...)"></textarea>
+                    <div style="margin-top: 10px;">
+                        <button class="submit-reason" onclick="declinePatient('${patient._id || patient.id}')">Submit Decline Reason</button>
+                        <button class="submit-reason" onclick="cancelDeclineReason('${patient._id || patient.id}')" style="background: #666; margin-left: 10px;">Cancel</button>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // NEW: View patient details in modal
+        async function viewPatientDetails(patientId) {
+            try {
+                console.log('Fetching patient ID:', patientId);
+                const response = await fetch(`http://localhost:5000/api/patients/${patientId}`);
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('API Error:', errorText);
+                    throw new Error('Patient not found');
+                }
+                
+                const patient = await response.json();
+                console.log('Patient data:', patient);
+                displayPatientInModal(patient);
+            } catch (error) {
+                console.error('Error loading patient details:', error);
+                // Try to get from pending patients list as fallback
+                try {
+                    const response = await fetch('http://localhost:5000/api/patients/pending');
+                    const patients = await response.json();
+                    const patient = patients.find(p => p._id === patientId);
+                    if (patient) {
+                        displayPatientInModal(patient);
+                        return;
+                    }
+                } catch (fallbackError) {
+                    console.error('Fallback error:', fallbackError);
+                }
+                alert('Unable to load patient details. Please try again.');
+            }
+        }
+
+        // Display patient data in modal
+        function displayPatientInModal(patient) {
+            
+            currentPatientInModal = patient;
+            
+            // Populate modal with patient data
+            document.getElementById('modalPatientName').textContent = patient.patientName || 'Unknown Patient';
+            document.getElementById('modalPatientAge').textContent = (patient.age || 'Unknown') + ' years';
+            document.getElementById('modalPatientGender').textContent = patient.gender || 'Not specified';
+            document.getElementById('modalPatientCondition').textContent = patient.medicalCondition || 'Not specified';
+            document.getElementById('modalPatientAllergies').textContent = patient.allergies || 'None reported';
+            document.getElementById('modalPatientBP').textContent = patient.bloodPressure || 'Not provided';
+            document.getElementById('modalPatientHR').textContent = patient.heartRate ? patient.heartRate + ' BPM' : 'Not provided';
+            document.getElementById('modalPatientO2').textContent = patient.oxygenSaturation ? patient.oxygenSaturation + '%' : 'Not provided';
+            document.getElementById('modalPatientNotes').textContent = patient.additionalNotes || 'No additional notes provided.';
+            // Debug: Log patient data to see what we're receiving
+            console.log('Patient data received:', patient);
+            console.log('Driver Name:', patient.driverName);
+            console.log('Driver Phone:', patient.driverPhone);
+            
+            document.getElementById('modalDriverName').textContent = patient.driverName || 'Unknown Driver';
+            document.getElementById('modalDriverPhone').textContent = patient.driverPhone || 'N/A';
+            document.getElementById('modalDriverEmail').textContent = patient.driverEmail || 'N/A';
+            document.getElementById('modalDriverLicense').textContent = patient.driverLicense || 'N/A';
+            document.getElementById('modalETA').textContent = '8-15 minutes';
+            document.getElementById('modalSubmittedTime').textContent = getTimeAgo(new Date(patient.createdAt));
+            
+            // Populate medical resources
+            const resourcesContainer = document.getElementById('modalMedicalResources');
+            resourcesContainer.innerHTML = '';
+            
+            const allResources = ['ICU Bed', 'Ventilator', 'Trauma Team', 'Emergency Surgery', 'Blood Transfusion', 'Cardiac Team'];
+            allResources.forEach(resource => {
+                const isRequired = (patient.medicalNeeds || []).includes(resource);
+                const resourceElement = document.createElement('div');
+                resourceElement.className = `resource-check ${isRequired ? 'required' : ''}`;
+                resourceElement.innerHTML = `
+                    <i class="fas ${isRequired ? 'fa-check-circle' : 'fa-times-circle'}" 
+                       style="color: ${isRequired ? 'var(--success)' : '#ccc'}"></i>
+                    <span>${resource}</span>
+                `;
+                resourcesContainer.appendChild(resourceElement);
+            });
+            
+            // Show modal
+            document.getElementById('patientDetailsModal').style.display = 'flex';
+        }
+
+        // NEW: Close patient modal
+        function closePatientModal() {
+            document.getElementById('patientDetailsModal').style.display = 'none';
+            currentPatientInModal = null;
+        }
+
+        // NEW: Admit patient from modal
+        function admitPatientFromModal() {
+            if (currentPatientInModal) {
+                admitPatient(currentPatientInModal.id || currentPatientInModal._id);
+                closePatientModal();
+            }
+        }
+
+        // NEW: Show decline reason in modal
+        function showDeclineReasonFromModal() {
+            const reasonSection = document.getElementById('modalReasonSection');
+            const modalActions = document.getElementById('modalActions');
+            
+            // Hide the action buttons and show reason section
+            modalActions.style.display = 'none';
+            reasonSection.style.display = 'block';
+            
+            // Clear previous text and focus
+            const textarea = document.getElementById('modalReasonTextarea');
+            textarea.value = '';
+            setTimeout(() => textarea.focus(), 100);
+        }
+        
+        // NEW: Cancel decline from modal
+        function cancelDeclineFromModal() {
+            const reasonSection = document.getElementById('modalReasonSection');
+            const modalActions = document.getElementById('modalActions');
+            
+            // Show action buttons and hide reason section
+            reasonSection.style.display = 'none';
+            modalActions.style.display = 'flex';
+        }
+
+        // NEW: Decline patient from modal
+        function declinePatientFromModal() {
+            const reason = document.getElementById('modalReasonTextarea').value.trim();
+            
+            if (reason === '') {
+                alert("Please provide a reason for declining admission.");
+                return;
+            }
+            
+            if (currentPatientInModal) {
+                declinePatientWithReason(currentPatientInModal.id || currentPatientInModal._id, reason);
+                closePatientModal();
+            }
+        }
+
+        // Admit patient - Send to backend
+        async function admitPatient(patientId) {
+            try {
+                const response = await fetch(`http://localhost:5000/api/patients/${patientId}/accept`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    const patient = await response.json();
+                    showAdmitSuccess(patient);
+                    
+                    // NEW: Send notification to ambulance driver
+                    sendNotificationToAmbulance(patientId, 'accepted', 'Patient admission accepted. Proceed to hospital.');
+                } else {
+                    throw new Error('Failed to admit patient');
+                }
+            } catch (error) {
+                console.error('Error admitting patient:', error);
+                // Fallback to local storage
+                admitPatientLocal(patientId);
+            }
+        }
+
+        // Fallback admit function
+        function admitPatientLocal(patientId) {
+            const patients = window.patientDataManager.getPatients();
+            const patient = patients.find(p => p.id === patientId);
+            
+            if (!patient) {
+                alert('Patient not found.');
+                return;
+            }
+            
+            const needsICU = patient.medicalNeeds.includes('ICU Bed');
+            const needsVentilator = patient.medicalNeeds.includes('Ventilator');
+            
+            if ((needsICU && hospitalCapacity.icuBeds <= 0) || 
+                (needsVentilator && hospitalCapacity.ventilators <= 0)) {
+                alert("Insufficient resources to admit this patient. Please decline and provide reason.");
+                return;
+            }
+            
+            if (needsICU) hospitalCapacity.icuBeds--;
+            if (needsVentilator) hospitalCapacity.ventilators--;
+            
+            window.patientDataManager.updatePatientStatus(patientId, 'accepted');
+            updateHospitalStatus();
+            showAdmitSuccess(patient);
+            
+            // NEW: Send notification to ambulance driver
+            sendNotificationToAmbulance(patientId, 'accepted', 'Patient admission accepted. Proceed to hospital.');
+        }
+
+        // Show admit success
+        function showAdmitSuccess(patient) {
+            const notification = document.getElementById('admit-notification');
+            notification.querySelector('h3').textContent = 'Patient Admitted Successfully!';
+            notification.querySelector('p').textContent = 
+                `${patient.patientName || patient.name} has been admitted. The ambulance has been notified.`;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                loadIncomingPatients();
+            }, 3000);
+        }
+
+
+
+        // Fallback decline function
+        function declinePatientLocal(patientId, reason) {
+            const patients = window.patientDataManager.getPatients();
+            const patient = patients.find(p => p.id === patientId);
+            
+            window.patientDataManager.updatePatientStatus(patientId, 'declined', reason);
+            showDeclineSuccess(patient, reason);
+            
+            // NEW: Send notification to ambulance driver
+            sendNotificationToAmbulance(patientId, 'declined', `Admission declined. Reason: ${reason}`);
+        }
+
+        // NEW: Send notification to ambulance driver
+        async function sendNotificationToAmbulance(patientId, decision, message) {
+            try {
+                const response = await fetch('http://localhost:5000/api/notifications/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        patientId: patientId,
+                        decision: decision,
+                        message: message,
+                        hospital: 'City General Hospital',
+                        timestamp: new Date().toISOString()
+                    })
+                });
+                
+                if (response.ok) {
+                    console.log('Notification sent to ambulance driver');
+                } else {
+                    console.warn('Failed to send notification to ambulance driver');
+                }
+            } catch (error) {
+                console.error('Error sending notification:', error);
+                // Fallback: Store notification locally
+                storeNotificationLocally(patientId, decision, message);
+            }
+        }
+
+        // NEW: Store notification locally if backend fails
+        function storeNotificationLocally(patientId, decision, message) {
+            const notifications = JSON.parse(localStorage.getItem('ambulanceNotifications') || '[]');
+            notifications.push({
+                patientId,
+                decision,
+                message,
+                hospital: 'City General Hospital',
+                timestamp: new Date().toISOString(),
+                read: false
+            });
+            localStorage.setItem('ambulanceNotifications', JSON.stringify(notifications));
+        }
+
+        // Show decline success
+        function showDeclineSuccess(patient, reason) {
+            const notification = document.getElementById('decline-notification');
+            notification.querySelector('h3').textContent = 'Admission Declined';
+            notification.querySelector('p').textContent = 
+                `The admission request for ${patient.patientName || patient.name} has been declined. Reason: ${reason}. The ambulance driver has been notified.`;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                loadIncomingPatients();
+            }, 3000);
+        }
+
+        // Helper functions remain the same...
+        function getTimeAgo(date) {
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            
+            if (diffMins < 1) return 'just now';
+            if (diffMins < 60) return `${diffMins} min ago`;
+            const diffHours = Math.floor(diffMins / 60);
+            if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+            const diffDays = Math.floor(diffHours / 24);
+            return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+        }
+
+        function updateHospitalStatus() {
+            document.getElementById('icu-available').textContent = hospitalCapacity.icuBeds;
+            document.getElementById('ventilators-available').textContent = hospitalCapacity.ventilators;
+            document.getElementById('er-beds').textContent = hospitalCapacity.erBeds;
+            
+            const statusElement = document.getElementById('availability-status');
+            if (hospitalCapacity.icuBeds > 3) {
+                statusElement.className = 'availability-status status-available';
+                statusElement.innerHTML = '<i class="fas fa-check-circle"></i><span>Accepting Emergency Patients</span>';
+            } else if (hospitalCapacity.icuBeds > 0) {
+                statusElement.className = 'availability-status status-limited';
+                statusElement.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>Limited Capacity</span>';
+            } else {
+                statusElement.className = 'availability-status status-full';
+                statusElement.innerHTML = '<i class="fas fa-times-circle"></i><span>ICU at Full Capacity</span>';
+            }
+        }
+
+        function showDeclineReason(patientId) {
+            const reasonElement = document.getElementById('reason-' + patientId);
+            const actionsElement = document.getElementById('actions-' + patientId);
+            
+            // Hide action buttons and show reason section
+            actionsElement.style.display = 'none';
+            reasonElement.style.display = 'block';
+            
+            // Clear previous text and focus
+            const textarea = reasonElement.querySelector('.reason-textarea');
+            textarea.value = '';
+            setTimeout(() => textarea.focus(), 100);
+        }
+        
+        function cancelDeclineReason(patientId) {
+            const reasonElement = document.getElementById('reason-' + patientId);
+            const actionsElement = document.getElementById('actions-' + patientId);
+            
+            // Show action buttons and hide reason section
+            reasonElement.style.display = 'none';
+            actionsElement.style.display = 'flex';
+        }
+
+        // Handle decline with reason from card
+        function declinePatient(patientId) {
+            const reasonElement = document.getElementById('reason-' + patientId);
+            const textarea = reasonElement.querySelector('.reason-textarea');
+            const reason = textarea.value.trim();
+            
+            if (!reason) {
+                alert('Please provide a reason for declining admission.');
+                return;
+            }
+            
+            declinePatientWithReason(patientId, reason);
+        }
+
+        // Actual decline function
+        async function declinePatientWithReason(patientId, reason) {
+            try {
+                const response = await fetch(`http://localhost:5000/api/patients/${patientId}/decline`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reason })
+                });
+                
+                if (response.ok) {
+                    const patient = await response.json();
+                    showDeclineSuccess(patient, reason);
+                    
+                    // Send notification to ambulance driver
+                    sendNotificationToAmbulance(patientId, 'declined', `Admission declined. Reason: ${reason}`);
+                } else {
+                    throw new Error('Failed to decline patient');
+                }
+            } catch (error) {
+                console.error('Error declining patient:', error);
+                // Fallback to local storage
+                declinePatientLocal(patientId, reason);
+            }
+        }
+
+        function closeNotification(notificationId) {
+            document.getElementById(notificationId).style.display = 'none';
+        }
+
+        function simulateRealTimeUpdates() {
+            setInterval(() => {
+                const etaElements = document.querySelectorAll('.patient-eta span');
+                etaElements.forEach(etaElement => {
+                    const currentEta = etaElement.textContent.replace('ETA: ', '');
+                    const minutes = parseInt(currentEta);
+                    if (minutes > 1) {
+                        etaElement.textContent = 'ETA: ' + (minutes - 1) + ' min';
+                    } else if (minutes === 1) {
+                        etaElement.textContent = 'ETA: <1 min';
+                    }
+                });
+            }, 30000);
+            
+            setInterval(() => {
+                if (Math.random() > 0.7) {
+                    hospitalCapacity.icuBeds += Math.random() > 0.5 ? 1 : -1;
+                    hospitalCapacity.icuBeds = Math.max(0, hospitalCapacity.icuBeds);
+                }
+                if (Math.random() > 0.7) {
+                    hospitalCapacity.ventilators += Math.random() > 0.5 ? 1 : -1;
+                    hospitalCapacity.ventilators = Math.max(0, hospitalCapacity.ventilators);
+                }
+                updateHospitalStatus();
+            }, 60000);
+        }
+    </script>
+</body>
+</html>

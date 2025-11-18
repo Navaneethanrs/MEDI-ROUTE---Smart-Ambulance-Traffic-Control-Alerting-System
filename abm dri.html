@@ -1,0 +1,2134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediRoute - Ambulance Driver</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #e63946;
+            --secondary: #1d3557;
+            --accent: #457b9d;
+            --light: #f1faee;
+            --dark: #0d1b2a;
+            --success: #4CAF50;
+            --warning: #FF9800;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+
+        /* Driver Profile Dropdown */
+        .driver-profile {
+            position: relative;
+        }
+
+        .profile-btn {
+            background: none;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+            color: var(--secondary);
+            font-weight: 500;
+        }
+
+        .profile-btn:hover {
+            background: rgba(0,0,0,0.05);
+        }
+
+        .profile-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            min-width: 200px;
+            padding: 8px 0;
+            display: none;
+            z-index: 1001;
+        }
+
+        .profile-menu.show {
+            display: block;
+        }
+
+        .profile-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+        }
+
+        .profile-info i {
+            font-size: 32px;
+            color: var(--accent);
+        }
+
+        .profile-name {
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .profile-email {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .profile-menu hr {
+            border: none;
+            border-top: 1px solid #eee;
+            margin: 8px 0;
+        }
+
+        .profile-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            text-decoration: none;
+            color: var(--secondary);
+            transition: background 0.3s;
+        }
+
+        .profile-link:hover {
+            background: rgba(0,0,0,0.05);
+        }
+
+        .profile-link.logout {
+            color: var(--primary);
+        }
+
+        .profile-link.logout:hover {
+            background: rgba(230, 57, 70, 0.1);
+        }
+
+        /* Edit Profile Modal */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            color: var(--primary);
+            font-size: 28px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            color: var(--secondary);
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--secondary);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--primary);
+        }
+
+        .cta-button {
+            background-color: var(--primary);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .cta-button:hover {
+            background-color: #c1121f;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(230, 57, 70, 0.3);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 100px;
+            padding: 20px 0;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .page-title h2 {
+            font-size: 36px;
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .page-title p {
+            color: #666;
+            font-size: 18px;
+        }
+
+        /* GPS Activation Section */
+        .gps-activation {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .gps-icon-large {
+            width: 100px;
+            height: 100px;
+            background-color: rgba(69, 123, 157, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .gps-icon-large i {
+            font-size: 50px;
+            color: var(--accent);
+        }
+
+        .gps-activation h3 {
+            font-size: 28px;
+            color: var(--secondary);
+            margin-bottom: 15px;
+        }
+
+        .gps-activation p {
+            color: #666;
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .activate-button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 0 auto;
+        }
+
+        .activate-button:hover {
+            background-color: #c1121f;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(230, 57, 70, 0.3);
+        }
+
+        .activate-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* GPS Status Card */
+        .gps-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .gps-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .gps-icon {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(69, 123, 157, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+
+        .gps-icon i {
+            font-size: 24px;
+            color: var(--accent);
+        }
+
+        .gps-header h3 {
+            font-size: 22px;
+            color: var(--secondary);
+        }
+
+        .gps-status {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #4CAF50;
+            margin-right: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .gps-details {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .gps-detail {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .gps-detail:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Map Section */
+        .map-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 40px;
+            display: none;
+        }
+
+        .map-container {
+            height: 400px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Hospitals Section */
+        .hospitals-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 40px;
+            display: none;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .section-header h3 {
+            font-size: 24px;
+            color: var(--secondary);
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 30px;
+            padding: 10px 20px;
+            width: 300px;
+        }
+
+        .search-box input {
+            border: none;
+            background: transparent;
+            outline: none;
+            width: 100%;
+            margin-left: 10px;
+            font-size: 16px;
+        }
+
+        .hospitals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .hospital-card {
+            border: 1px solid #eaeaea;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hospital-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            border-color: var(--accent);
+        }
+
+        .hospital-card.selected {
+            border-color: var(--primary);
+            background-color: rgba(230, 57, 70, 0.05);
+        }
+
+        .hospital-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .hospital-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .hospital-distance {
+            background: var(--accent);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .hospital-details {
+            margin-bottom: 15px;
+        }
+
+        .hospital-detail {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            color: #666;
+        }
+
+        .hospital-detail i {
+            margin-right: 8px;
+            width: 20px;
+            color: var(--accent);
+        }
+
+        .hospital-actions {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .select-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .select-button:hover {
+            background: #c1121f;
+        }
+
+        /* Patient Details Section */
+        .patient-details-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 40px;
+            display: none;
+        }
+
+        .patient-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+
+        .form-textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .medical-needs {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .need-checkbox {
+            display: flex;
+            align-items: center;
+        }
+
+        .need-checkbox input {
+            margin-right: 8px;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .confirm-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .confirm-button:hover {
+            background: #c1121f;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(230, 57, 70, 0.3);
+        }
+
+        .back-button {
+            background: transparent;
+            color: var(--secondary);
+            border: 2px solid var(--secondary);
+            padding: 12px 30px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .back-button:hover {
+            background: var(--secondary);
+            color: white;
+        }
+
+        /* Confirmation Section */
+        .confirmation-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            display: none;
+        }
+
+        .confirmation-icon {
+            width: 80px;
+            height: 80px;
+            background-color: rgba(76, 175, 80, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .confirmation-icon i {
+            font-size: 40px;
+            color: #4CAF50;
+        }
+
+        .confirmation-section h3 {
+            font-size: 28px;
+            color: var(--secondary);
+            margin-bottom: 15px;
+        }
+
+        .confirmation-section p {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 18px;
+        }
+
+        .eta-display {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 25px;
+            display: inline-block;
+        }
+
+        .eta-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .eta-label {
+            color: #666;
+            font-size: 16px;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 40px 0 20px;
+            margin-top: 60px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+
+        .footer-column h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background-color: var(--primary);
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 12px;
+        }
+
+        .footer-column a {
+            color: #aaa;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-column a:hover {
+            color: white;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+        }
+
+        .social-links a:hover {
+            background-color: var(--primary);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            nav ul {
+                gap: 15px;
+            }
+            
+            .page-title h2 {
+                font-size: 28px;
+            }
+            
+            .search-box {
+                width: 100%;
+                margin-top: 15px;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .patient-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .gps-activation {
+                padding: 25px;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(69, 123, 157, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Hospital Specialties */
+        .hospital-specialties {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .specialty-tag {
+            background: rgba(69, 123, 157, 0.1);
+            color: var(--accent);
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Hospital Capacity */
+        .hospital-capacity {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .capacity-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .capacity-item i {
+            color: var(--accent);
+        }
+
+        /* Notification Styles */
+        .notification {
+            position: fixed;
+            top: 120px;
+            right: 20px;
+            background: white;
+            border-radius: 10px;
+            padding: 15px 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            max-width: 400px;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .notification-success {
+            border-left: 4px solid var(--success);
+        }
+
+        .notification-success .notification-icon {
+            background: rgba(76, 175, 80, 0.1);
+            color: var(--success);
+        }
+
+        .notification-error {
+            border-left: 4px solid var(--primary);
+        }
+
+        .notification-error .notification-icon {
+            background: rgba(230, 57, 70, 0.1);
+            color: var(--primary);
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--secondary);
+        }
+
+        .notification-message {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <i class="fas fa-ambulance"></i>
+                <h1>Medi <span>Route</span></h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="home.html"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="#"><i class="fas fa-user-md"></i> Ambulance Driver</a></li>
+                    <li><a href="#"><i class="fas fa-info-circle"></i> Help</a></li>
+                </ul>
+            </nav>
+            <div class="driver-profile">
+                <div class="profile-dropdown">
+                    <button class="profile-btn" id="profileBtn">
+                        <i class="fas fa-user-circle"></i>
+                        <span id="driverName">Driver</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="profile-menu" id="profileMenu">
+                        <div class="profile-info">
+                            <i class="fas fa-user-circle"></i>
+                            <div>
+                                <div class="profile-name" id="profileName">Driver Name</div>
+                                <div class="profile-email" id="profileEmail">driver@email.com</div>
+                            </div>
+                        </div>
+                        <hr>
+                        <a href="#" class="profile-link" id="editProfileBtn"><i class="fas fa-user-edit"></i> Edit Profile</a>
+                        <a href="home.html" class="profile-link logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Notification System -->
+    <div class="notification notification-success" id="success-notification">
+        <div class="notification-icon">
+            <i class="fas fa-check"></i>
+        </div>
+        <div class="notification-content">
+            <div class="notification-title" id="success-title">Success!</div>
+            <div class="notification-message" id="success-message">Patient data saved successfully!</div>
+        </div>
+        <button class="notification-close" onclick="closeNotification('success-notification')">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <div class="notification notification-error" id="error-notification">
+        <div class="notification-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="notification-content">
+            <div class="notification-title" id="error-title">Error</div>
+            <div class="notification-message" id="error-message">Failed to save patient data. Please try again.</div>
+        </div>
+        <button class="notification-close" onclick="closeNotification('error-notification')">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container main-content">
+        <!-- Page Title -->
+        <div class="page-title">
+            <h2>Ambulance Driver Dashboard</h2>
+            <p>Activate GPS to find nearby hospitals and enter patient details</p>
+        </div>
+
+        <!-- GPS Activation Section -->
+        <div class="gps-activation" id="gps-activation">
+            <div class="gps-icon-large">
+                <i class="fas fa-satellite-dish"></i>
+            </div>
+            <h3>Enable Live GPS Tracking</h3>
+            <p>To find the nearest hospitals and optimize your route, we need to access your device's GPS location. This will allow us to provide real-time traffic signal control for faster emergency response.</p>
+            <button class="activate-button" id="activate-gps">
+                <i class="fas fa-location-dot"></i> Activate GPS Tracking
+            </button>
+        </div>
+
+        <!-- GPS Status Card -->
+        <div class="gps-card" id="gps-card">
+            <div class="gps-header">
+                <div class="gps-icon">
+                    <i class="fas fa-satellite-dish"></i>
+                </div>
+                <h3>Live GPS Location Tracking</h3>
+            </div>
+            <div class="gps-status">
+                <div class="status-indicator"></div>
+                <span>GPS Signal: <span id="gps-strength">Strong</span></span>
+            </div>
+            <div class="gps-details">
+                <div class="gps-detail">
+                    <span>Current Location:</span>
+                    <span id="current-location">Acquiring location...</span>
+                </div>
+                <div class="gps-detail">
+                    <span>Last Updated:</span>
+                    <span id="gps-time">Just now</span>
+                </div>
+                <div class="gps-detail">
+                    <span>Accuracy:</span>
+                    <span id="gps-accuracy">± 10 meters</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Section -->
+        <div class="map-section" id="map-section">
+            <div class="section-header">
+                <h3>Nearby Hospitals Map</h3>
+                <p>Hospitals within 10km radius are shown on the map</p>
+            </div>
+            <div class="map-container" id="map"></div>
+        </div>
+
+        <!-- Nearby Hospitals Section -->
+        <div class="hospitals-section" id="hospitals-section">
+            <div class="section-header">
+                <h3>Nearby Hospitals</h3>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search hospitals..." id="hospital-search">
+                </div>
+            </div>
+            <div class="hospitals-grid" id="hospitals-grid">
+                <!-- Hospital cards will be dynamically inserted here -->
+            </div>
+        </div>
+
+        <!-- Patient Details Section -->
+        <div class="patient-details-section" id="patient-details">
+            <div class="section-header">
+                <h3>Patient Details</h3>
+                <p>Enter patient information for hospital preparation</p>
+            </div>
+            
+            <form id="patient-form">
+                <div class="patient-form">
+                    <div class="form-group">
+                        <label class="form-label" for="patientName">Patient Name *</label>
+                        <input type="text" id="patientName" class="form-input" placeholder="Enter patient full name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="age">Age *</label>
+                        <input type="number" id="age" class="form-input" placeholder="Enter age" min="0" max="120" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="gender">Gender *</label>
+                        <select id="gender" class="form-select" required>
+                            <option value="">Select gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="medicalCondition">Medical Condition *</label>
+                        <select id="medicalCondition" class="form-select" required>
+                            <option value="">Select condition</option>
+                            <option value="cardiac">Cardiac Arrest</option>
+                            <option value="trauma">Trauma/Accident</option>
+                            <option value="stroke">Stroke</option>
+                            <option value="respiratory">Respiratory Distress</option>
+                            <option value="seizure">Seizure</option>
+                            <option value="other">Other Emergency</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="bloodPressure">Blood Pressure</label>
+                        <input type="text" id="bloodPressure" class="form-input" placeholder="e.g., 120/80">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="heartRate">Heart Rate (BPM)</label>
+                        <input type="number" id="heartRate" class="form-input" placeholder="e.g., 72">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="oxygenSaturation">Oxygen Saturation (%)</label>
+                        <input type="number" id="oxygenSaturation" class="form-input" placeholder="e.g., 98" min="0" max="100">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="allergies">Known Allergies</label>
+                        <input type="text" id="allergies" class="form-input" placeholder="e.g., Penicillin, Latex">
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label class="form-label">Required Medical Resources *</label>
+                        <div class="medical-needs">
+                            <div class="need-checkbox">
+                                <input type="checkbox" id="need-icu" name="medicalNeeds" value="ICU Bed" required>
+                                <label for="need-icu">ICU Bed</label>
+                            </div>
+                            <div class="need-checkbox">
+                                <input type="checkbox" id="need-ventilator" name="medicalNeeds" value="Ventilator">
+                                <label for="need-ventilator">Ventilator</label>
+                            </div>
+                            <div class="need-checkbox">
+                                <input type="checkbox" id="need-surgery" name="medicalNeeds" value="Emergency Surgery">
+                                <label for="need-surgery">Emergency Surgery</label>
+                            </div>
+                            <div class="need-checkbox">
+                                <input type="checkbox" id="need-blood" name="medicalNeeds" value="Blood Transfusion">
+                                <label for="need-blood">Blood Transfusion</label>
+                            </div>
+                            <div class="need-checkbox">
+                                <input type="checkbox" id="need-cardiac" name="medicalNeeds" value="Cardiac Team">
+                                <label for="need-cardiac">Cardiac Team</label>
+                            </div>
+                            <div class="need-checkbox">
+                                <input type="checkbox" id="need-trauma" name="medicalNeeds" value="Trauma Team">
+                                <label for="need-trauma">Trauma Team</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label class="form-label" for="additionalNotes">Additional Medical Notes</label>
+                        <textarea id="additionalNotes" class="form-textarea" placeholder="Enter any additional information about the patient's condition, symptoms, or treatment provided"></textarea>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button type="button" class="back-button" id="back-to-hospitals">
+                        <i class="fas fa-arrow-left"></i> Back to Hospitals
+                    </button>
+                    <button type="button" class="confirm-button" id="sendBtn">
+                        <i class="fas fa-paper-plane"></i> Send to Hospital
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Confirmation Section -->
+        <div class="confirmation-section" id="confirmation-section">
+            <div class="confirmation-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <h3>Hospital Notified Successfully!</h3>
+            <p>Patient details have been sent to <span id="confirmed-hospital-name">City General Hospital</span>. The hospital is preparing for patient arrival.</p>
+            
+            <div class="eta-display">
+                <div class="eta-value" id="eta-value">12 min</div>
+                <div class="eta-label">Estimated Time of Arrival</div>
+            </div>
+            
+            <p>Traffic signals along your route are being optimized for the fastest arrival.</p>
+            
+            <div class="action-buttons">
+                <button class="back-button" id="back-to-dashboard">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div class="modal-backdrop" id="editProfileModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Edit Profile</h3>
+                <button class="modal-close" id="closeEditModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editProfileForm">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" id="editDriverName" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" id="editEmail" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone</label>
+                        <input type="tel" id="editPhone" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">License Number</label>
+                        <input type="text" id="editLicense" class="form-input" required>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="back-button" id="cancelEdit">Cancel</button>
+                        <button type="submit" class="confirm-button">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Medi Route</h3>
+                    <p>An IoT-based Smart Ambulance Traffic Control System designed to improve emergency medical response and save lives.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="https://www.linkedin.com/in/navaneethan-sankar-743751367/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://www.linkedin.com/in/niranjan-gobinathan-0b67b4321/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://www.instagram.com/n.o.v.a.__.18/" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.instagram.com/nirxnjxn_off_/" target="_blank"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="home.html">Home</a></li>
+                        <li><a href="#">Ambulance Driver</a></li>
+                        <li><a href="#">Hospital Access</a></li>
+                        <li><a href="#">How It Works</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contact Us</h3>
+                    <ul>
+                        <li><i class="fas fa-map-marker-alt"></i> Valluvar Hostel Room No: 117, Kongu Engineering College</li>
+                        <li><i class="fas fa-phone"></i> 9342512455, 8825905640</li>
+                        <li><i class="fas fa-envelope"></i> info@mediroute.com</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 Medi Route. All rights reserved. Created by Niranjan, Navaneethan & Nishant</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        // Initialize map
+        let map = null;
+        let userMarker = null;
+        let hospitalMarkers = [];
+        let hospitalLayerGroup = null;
+
+        // DOM Elements
+        const gpsActivation = document.getElementById('gps-activation');
+        const gpsCard = document.getElementById('gps-card');
+        const activateGpsButton = document.getElementById('activate-gps');
+        const mapSection = document.getElementById('map-section');
+        const hospitalsSection = document.getElementById('hospitals-section');
+        const hospitalsGrid = document.getElementById('hospitals-grid');
+        const hospitalSearch = document.getElementById('hospital-search');
+        const patientDetailsSection = document.getElementById('patient-details');
+        const confirmationSection = document.getElementById('confirmation-section');
+        const confirmedHospitalName = document.getElementById('confirmed-hospital-name');
+        const etaValue = document.getElementById('eta-value');
+        const backToHospitals = document.getElementById('back-to-hospitals');
+        const backToDashboard = document.getElementById('back-to-dashboard');
+        const patientForm = document.getElementById('patient-form');
+        const currentLocation = document.getElementById('current-location');
+        const gpsTime = document.getElementById('gps-time');
+        const gpsAccuracy = document.getElementById('gps-accuracy');
+        const gpsStrength = document.getElementById('gps-strength');
+
+        // State variables
+        let selectedHospital = null;
+        let gpsWatchId = null;
+        let currentCoords = null;
+        let currentNearbyHospitals = [];
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initially hide sections that require GPS
+            gpsCard.style.display = 'none';
+            mapSection.style.display = 'none';
+            hospitalsSection.style.display = 'none';
+            patientDetailsSection.style.display = 'none';
+            confirmationSection.style.display = 'none';
+            
+            // Load driver profile from session
+            loadDriverProfile();
+            
+            // Check for notifications
+            checkNotifications();
+            setInterval(checkNotifications, 5000); // Check every 5 seconds
+            
+            // Profile dropdown functionality
+            const profileBtn = document.getElementById('profileBtn');
+            const profileMenu = document.getElementById('profileMenu');
+            
+            profileBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                profileMenu.classList.toggle('show');
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function() {
+                profileMenu.classList.remove('show');
+            });
+            
+            // Edit profile functionality
+            document.getElementById('editProfileBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                openEditProfileModal();
+            });
+            
+            document.getElementById('closeEditModal').addEventListener('click', closeEditProfileModal);
+            document.getElementById('cancelEdit').addEventListener('click', closeEditProfileModal);
+            
+            document.getElementById('editProfileForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveProfileChanges();
+            });
+        });
+        
+        // Load driver profile from localStorage
+        function loadDriverProfile() {
+            const storedData = localStorage.getItem('driverData');
+            if (storedData) {
+                try {
+                    const driverData = JSON.parse(storedData);
+                    document.getElementById('driverName').textContent = driverData.driverName || 'Driver';
+                    document.getElementById('profileName').textContent = driverData.driverName || 'Driver';
+                    document.getElementById('profileEmail').textContent = driverData.email || 'driver@mediroute.com';
+                } catch (error) {
+                    console.error('Error loading driver profile:', error);
+                    document.getElementById('driverName').textContent = 'Driver';
+                    document.getElementById('profileName').textContent = 'Driver';
+                    document.getElementById('profileEmail').textContent = 'driver@mediroute.com';
+                }
+            } else {
+                document.getElementById('driverName').textContent = 'Driver';
+                document.getElementById('profileName').textContent = 'Driver';
+                document.getElementById('profileEmail').textContent = 'driver@mediroute.com';
+            }
+        }
+
+        // Activate GPS when button is clicked
+        activateGpsButton.addEventListener('click', function() {
+            activateGpsButton.disabled = true;
+            activateGpsButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Activating GPS...';
+            
+            // Simulate GPS activation with a delay
+            setTimeout(function() {
+                activateLiveGPS();
+            }, 1500);
+        });
+
+        // Activate live GPS tracking
+        async function activateLiveGPS() {
+            activateGpsButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Requesting GPS Access...';
+            
+            if (navigator.geolocation) {
+                try {
+                    // Check permissions first if available
+                    if (navigator.permissions) {
+                        const permission = await navigator.permissions.query({name: 'geolocation'});
+                        if (permission.state === 'denied') {
+                            throw new Error('GPS permission denied');
+                        }
+                    }
+                    
+                    // Get current position with high accuracy settings
+                    navigator.geolocation.getCurrentPosition(
+                        function(position) {
+                            handleGPSuccess(position);
+                            // Start watching for continuous updates with high accuracy
+                            gpsWatchId = navigator.geolocation.watchPosition(
+                                handleGPSuccess,
+                                function(err) { console.warn('GPS watch error:', err); },
+                                {
+                                    enableHighAccuracy: true,
+                                    timeout: 10000,
+                                    maximumAge: 5000
+                                }
+                            );
+                        },
+                        handleGPError,
+                        {
+                            enableHighAccuracy: true,
+                            timeout: 10000,
+                            maximumAge: 0
+                        }
+                    );
+                } catch (error) {
+                    handleGPError(error);
+                }
+            } else {
+                handleGPError(new Error('Geolocation not supported'));
+            }
+        }
+
+        // Handle successful GPS acquisition
+        function handleGPSuccess(position) {
+            currentCoords = position.coords;
+            
+            // Update GPS display
+            currentLocation.textContent = `Lat: ${currentCoords.latitude.toFixed(6)}, Lng: ${currentCoords.longitude.toFixed(6)}`;
+            gpsAccuracy.textContent = `± ${Math.round(currentCoords.accuracy)} meters`;
+            
+            // Update time
+            const now = new Date();
+            gpsTime.textContent = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+            
+            // Update GPS strength based on accuracy
+            if (currentCoords.accuracy < 10) {
+                gpsStrength.textContent = "Excellent";
+            } else if (currentCoords.accuracy < 25) {
+                gpsStrength.textContent = "Good";
+            } else if (currentCoords.accuracy < 50) {
+                gpsStrength.textContent = "Fair";
+            } else {
+                gpsStrength.textContent = "Poor";
+            }
+            
+            // Show GPS card and map
+            gpsCard.style.display = 'block';
+            mapSection.style.display = 'block';
+            hospitalsSection.style.display = 'block';
+            
+            // Update button
+            activateGpsButton.innerHTML = '<i class="fas fa-check-circle"></i> GPS Active';
+            activateGpsButton.style.backgroundColor = '#4CAF50';
+            
+            // Initialize map if not already done
+            if (!map) {
+                initMap(currentCoords.latitude, currentCoords.longitude);
+            } else {
+                updateMap(currentCoords.latitude, currentCoords.longitude);
+            }
+            
+            // Get nearby hospitals based on GPS location
+            getNearbyHospitals(currentCoords.latitude, currentCoords.longitude);
+        }
+
+        // Handle GPS errors
+        function handleGPError(error) {
+            console.error("GPS Error:", error);
+            
+            let errorMessage = "GPS unavailable. ";
+            let buttonText = "GPS Error - Demo Mode";
+            
+            if (error.code) {
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMessage = "GPS access denied. Please allow location access and try again. ";
+                        buttonText = "GPS Denied - Demo Mode";
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMessage = "GPS position unavailable. ";
+                        break;
+                    case error.TIMEOUT:
+                        errorMessage = "GPS request timed out. ";
+                        break;
+                }
+            }
+            
+            // Show demo location
+            currentLocation.textContent = errorMessage + "Demo: Mumbai, Maharashtra, India";
+            gpsAccuracy.textContent = "Demo Mode";
+            gpsStrength.textContent = "Simulated";
+            
+            // Show GPS card and map
+            gpsCard.style.display = 'block';
+            mapSection.style.display = 'block';
+            hospitalsSection.style.display = 'block';
+            
+            // Update button with retry option
+            activateGpsButton.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${buttonText}`;
+            activateGpsButton.style.backgroundColor = '#FF9800';
+            activateGpsButton.disabled = false;
+            
+            // Add retry functionality
+            activateGpsButton.onclick = function() {
+                if (confirm('GPS access failed. Try again?\n\nTip: Make sure to click "Allow" when your browser asks for location permission.')) {
+                    activateGpsButton.disabled = true;
+                    setTimeout(() => activateLiveGPS(), 500);
+                }
+            };
+            
+            simulateGPS();
+            // Use demo location (Mumbai coordinates) for nearby hospitals
+            initMap(19.0760, 72.8777);
+            getNearbyHospitals(19.0760, 72.8777);
+        }
+
+        // Initialize the map
+        function initMap(lat, lng) {
+            map = L.map('map').setView([lat, lng], 15);
+            
+            // Use high-resolution satellite tiles for better accuracy
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                maxZoom: 19
+            }).addTo(map);
+            
+            // Add accurate user marker with custom icon
+            const ambulanceIcon = L.divIcon({
+                html: '<i class="fas fa-ambulance" style="color: #e63946; font-size: 24px;"></i>',
+                iconSize: [30, 30],
+                className: 'custom-div-icon'
+            });
+            
+            userMarker = L.marker([lat, lng], {icon: ambulanceIcon})
+                .addTo(map)
+                .bindPopup(`<b>Your Ambulance Location</b><br>Lat: ${lat.toFixed(6)}<br>Lng: ${lng.toFixed(6)}`)
+                .openPopup();
+            
+            // Add accuracy circle based on GPS accuracy
+            if (currentCoords && currentCoords.accuracy) {
+                L.circle([lat, lng], {
+                    color: 'blue',
+                    fillColor: '#03f',
+                    fillOpacity: 0.1,
+                    radius: currentCoords.accuracy
+                }).addTo(map).bindPopup(`GPS Accuracy: ±${Math.round(currentCoords.accuracy)}m`);
+            }
+            
+            // Add search radius circle
+            L.circle([lat, lng], {
+                color: 'red',
+                fillColor: '#f03',
+                fillOpacity: 0.05,
+                radius: 10000,
+                dashArray: '5, 5'
+            }).addTo(map).bindPopup('10km Hospital Search Radius');
+            
+            hospitalLayerGroup = L.layerGroup().addTo(map);
+        }
+
+        // Update map with new location
+        function updateMap(lat, lng) {
+            if (map && userMarker) {
+                map.setView([lat, lng], 13);
+                userMarker.setLatLng([lat, lng]);
+                
+                // Update circle
+                map.eachLayer(function(layer) {
+                    if (layer instanceof L.Circle) {
+                        map.removeLayer(layer);
+                    }
+                });
+                
+                L.circle([lat, lng], {
+                    color: 'red',
+                    fillColor: '#f03',
+                    fillOpacity: 0.1,
+                    radius: 10000
+                }).addTo(map);
+            }
+        }
+
+        // Get nearby hospitals using Overpass API
+        async function getNearbyHospitals(lat, lng) {
+            // Show loading state
+            hospitalsGrid.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                </div>
+            `;
+            
+            try {
+                // Overpass API query to get hospitals within 10km radius
+                const overpassQuery = `
+                    [out:json][timeout:25];
+                    (
+                      node["amenity"="hospital"](around:10000,${lat},${lng});
+                      way["amenity"="hospital"](around:10000,${lat},${lng});
+                      relation["amenity"="hospital"](around:10000,${lat},${lng});
+                    );
+                    out center;
+                `;
+                
+                const response = await fetch('https://overpass-api.de/api/interpreter', {
+                    method: 'POST',
+                    body: overpassQuery
+                });
+                
+                const data = await response.json();
+                
+                // Process the results
+                const hospitals = data.elements.map(element => {
+                    // Calculate distance
+                    const distance = calculateDistance(
+                        lat, 
+                        lng, 
+                        element.lat || element.center.lat, 
+                        element.lon || element.center.lon
+                    );
+                    
+                    // Generate ETA based on distance (assuming average speed of 40 km/h)
+                    const eta = Math.ceil((distance / 40) * 60);
+                    
+                    return {
+                        id: element.id,
+                        name: element.tags.name || 'Unknown Hospital',
+                        address: element.tags['addr:street'] || 'Address not available',
+                        lat: element.lat || element.center.lat,
+                        lng: element.lon || element.center.lon,
+                        distance: distance.toFixed(1) + ' km',
+                        eta: eta + ' min',
+                        distanceValue: distance,
+                        specialties: ['Emergency Medicine', 'ICU', 'Trauma Care'], // Default specialties
+                        phone: '(555) 123-4567', // Default phone
+                        icuBeds: Math.floor(Math.random() * 10) + 1, // Random for demo
+                        ventilators: Math.floor(Math.random() * 6) + 1, // Random for demo
+                        cardiacTeams: Math.floor(Math.random() * 3) + 1 // Random for demo
+                    };
+                }).filter(hospital => hospital.distanceValue <= 10) // Filter by 10km radius
+                  .sort((a, b) => a.distanceValue - b.distanceValue); // Sort by distance
+                
+                // If no hospitals found, use fallback data
+                if (hospitals.length === 0) {
+                    console.log("No hospitals found via API, using fallback data");
+                    useFallbackHospitals(lat, lng);
+                    return;
+                }
+                
+                // Render hospitals
+                renderHospitals(hospitals);
+                addHospitalMarkers(hospitals);
+                
+            } catch (error) {
+                console.error("Error fetching hospitals:", error);
+                // Use fallback data if API fails
+                useFallbackHospitals(lat, lng);
+            }
+        }
+
+        // Use fallback hospital data if API fails
+        function useFallbackHospitals(lat, lng) {
+            // Generate hospitals around the current location
+            const fallbackHospitals = [];
+            const hospitalNames = [
+                "City General Hospital", 
+                "Unity Medical Center", 
+                "Hope Regional Hospital",
+                "LifeSavers Medical",
+                "Metro Emergency Center",
+                "Advanced Care Hospital"
+            ];
+            
+            for (let i = 0; i < 6; i++) {
+                // Generate random coordinates within 10km radius
+                const randomLat = lat + (Math.random() - 0.5) * 0.18; // ~10km in latitude
+                const randomLng = lng + (Math.random() - 0.5) * 0.18; // ~10km in longitude
+                
+                const distance = calculateDistance(lat, lng, randomLat, randomLng);
+                const eta = Math.ceil((distance / 40) * 60);
+                
+                fallbackHospitals.push({
+                    id: i + 1,
+                    name: hospitalNames[i],
+                    address: `${i+1}${i%2===0 ? ' Medical' : ' Health'} ${i%3===0 ? 'Center' : 'Avenue'}, Healthcare District`,
+                    lat: randomLat,
+                    lng: randomLng,
+                    distance: distance.toFixed(1) + ' km',
+                    eta: eta + ' min',
+                    distanceValue: distance,
+                    specialties: ['Emergency Medicine', 'ICU', 'Trauma Care', 'Cardiology'],
+                    phone: `(555) ${100 + i}-${1000 + i}`,
+                    icuBeds: Math.floor(Math.random() * 10) + 1,
+                    ventilators: Math.floor(Math.random() * 6) + 1,
+                    cardiacTeams: Math.floor(Math.random() * 3) + 1
+                });
+            }
+            
+            // Sort by distance
+            fallbackHospitals.sort((a, b) => a.distanceValue - b.distanceValue);
+            
+            // Render hospitals
+            renderHospitals(fallbackHospitals);
+            addHospitalMarkers(fallbackHospitals);
+        }
+
+        // Function to calculate distance between two GPS coordinates
+        function calculateDistance(lat1, lng1, lat2, lng2) {
+            const R = 6371; // Earth's radius in kilometers
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLng = (lng2 - lng1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                    Math.sin(dLng/2) * Math.sin(dLng/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c; // Distance in kilometers
+        }
+
+        // Add hospital markers to the map
+        function addHospitalMarkers(hospitals) {
+            // Clear existing hospital markers
+            if (hospitalLayerGroup) {
+                hospitalLayerGroup.clearLayers();
+            }
+            
+            hospitals.forEach(hospital => {
+                const marker = L.marker([hospital.lat, hospital.lng])
+                    .addTo(hospitalLayerGroup)
+                    .bindPopup(`
+                        <b>${hospital.name}</b><br>
+                        ${hospital.address}<br>
+                        Distance: ${hospital.distance}<br>
+                        ETA: ${hospital.eta}
+                    `);
+                
+                hospitalMarkers.push(marker);
+            });
+        }
+
+        // Render hospitals to the grid
+        function renderHospitals(hospitalsArray) {
+            currentNearbyHospitals = hospitalsArray;
+            hospitalsGrid.innerHTML = '';
+            
+            if (hospitalsArray.length === 0) {
+                hospitalsGrid.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #666; grid-column: 1 / -1;">
+                        <i class="fas fa-hospital" style="font-size: 48px; margin-bottom: 15px; display: block;"></i>
+                        <h3>No nearby hospitals found</h3>
+                        <p>Try expanding your search radius or check your location.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            hospitalsArray.forEach(hospital => {
+                const hospitalCard = document.createElement('div');
+                hospitalCard.className = 'hospital-card';
+                hospitalCard.innerHTML = `
+                    <div class="hospital-header">
+                        <div class="hospital-name">${hospital.name}</div>
+                        <div class="hospital-distance">${hospital.distance}</div>
+                    </div>
+                    <div class="hospital-details">
+                        <div class="hospital-detail">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>${hospital.address}</span>
+                        </div>
+                        <div class="hospital-detail">
+                            <i class="fas fa-phone"></i>
+                            <span>${hospital.phone}</span>
+                        </div>
+                        <div class="hospital-detail">
+                            <i class="fas fa-clock"></i>
+                            <span>ETA: ${hospital.eta}</span>
+                        </div>
+                    </div>
+                    <div class="hospital-specialties">
+                        ${hospital.specialties.map(specialty => 
+                            `<span class="specialty-tag">${specialty}</span>`
+                        ).join('')}
+                    </div>
+                    <div class="hospital-capacity">
+                        <div class="capacity-item">
+                            <i class="fas fa-procedures"></i>
+                            <span>ICU: ${hospital.icuBeds}</span>
+                        </div>
+                        <div class="capacity-item">
+                            <i class="fas fa-lungs"></i>
+                            <span>Vent: ${hospital.ventilators}</span>
+                        </div>
+                        <div class="capacity-item">
+                            <i class="fas fa-heartbeat"></i>
+                            <span>Cardiac: ${hospital.cardiacTeams}</span>
+                        </div>
+                    </div>
+                    <div class="hospital-actions">
+                        <button class="select-button" data-id="${hospital.id}">Select Hospital</button>
+                    </div>
+                `;
+                
+                hospitalsGrid.appendChild(hospitalCard);
+            });
+            
+            // Add event listeners to select buttons
+            document.querySelectorAll('.select-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const hospitalId = parseInt(this.getAttribute('data-id'));
+                    selectHospital(hospitalId);
+                });
+            });
+        }
+
+        // Select a hospital and show patient details form
+        function selectHospital(hospitalId) {
+            selectedHospital = currentNearbyHospitals.find(h => h.id === hospitalId);
+            
+            if (selectedHospital) {
+                // Update confirmation section
+                confirmedHospitalName.textContent = selectedHospital.name;
+                etaValue.textContent = selectedHospital.eta;
+                
+                // Show patient details section
+                hospitalsSection.style.display = 'none';
+                mapSection.style.display = 'none';
+                patientDetailsSection.style.display = 'block';
+                confirmationSection.style.display = 'none';
+            }
+        }
+
+        // Simulate GPS data if real GPS is not available
+        function simulateGPS() {
+            // Update time
+            const now = new Date();
+            gpsTime.textContent = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+            
+            // Simulate location updates
+            setInterval(function() {
+                const now = new Date();
+                gpsTime.textContent = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+            }, 5000);
+        }
+
+        // Event Listeners
+        backToHospitals.addEventListener('click', function() {
+            hospitalsSection.style.display = 'block';
+            mapSection.style.display = 'block';
+            patientDetailsSection.style.display = 'none';
+            confirmationSection.style.display = 'none';
+        });
+
+        backToDashboard.addEventListener('click', function() {
+            hospitalsSection.style.display = 'block';
+            mapSection.style.display = 'block';
+            patientDetailsSection.style.display = 'none';
+            confirmationSection.style.display = 'none';
+        });
+
+        // Search functionality
+        hospitalSearch.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const filteredHospitals = currentNearbyHospitals.filter(hospital => 
+                hospital.name.toLowerCase().includes(searchTerm) ||
+                hospital.address.toLowerCase().includes(searchTerm) ||
+                hospital.specialties.some(specialty => 
+                    specialty.toLowerCase().includes(searchTerm)
+                )
+            );
+            renderHospitals(filteredHospitals);
+        });
+
+        // Clean up GPS watcher when leaving the page
+        window.addEventListener('beforeunload', function() {
+            if (gpsWatchId) {
+                navigator.geolocation.clearWatch(gpsWatchId);
+            }
+        });
+
+        // Show notification
+        function showNotification(notificationId, title, message) {
+            const notification = document.getElementById(notificationId);
+            document.getElementById(notificationId.replace('notification', 'title')).textContent = title;
+            document.getElementById(notificationId.replace('notification', 'message')).textContent = message;
+            
+            notification.classList.add('show');
+            
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                closeNotification(notificationId);
+            }, 5000);
+        }
+
+        // Close notification
+        function closeNotification(notificationId) {
+            document.getElementById(notificationId).classList.remove('show');
+        }
+        
+        // Edit Profile Modal Functions
+        function openEditProfileModal() {
+            const storedData = localStorage.getItem('driverData');
+            if (storedData) {
+                const driverData = JSON.parse(storedData);
+                document.getElementById('editDriverName').value = driverData.driverName || '';
+                document.getElementById('editEmail').value = driverData.email || '';
+                document.getElementById('editPhone').value = driverData.phone || '';
+                document.getElementById('editLicense').value = driverData.licenceNumber || '';
+            }
+            document.getElementById('editProfileModal').style.display = 'flex';
+        }
+        
+        function closeEditProfileModal() {
+            document.getElementById('editProfileModal').style.display = 'none';
+        }
+        
+        function saveProfileChanges() {
+            const updatedData = {
+                driverName: document.getElementById('editDriverName').value,
+                email: document.getElementById('editEmail').value,
+                phone: document.getElementById('editPhone').value,
+                licenceNumber: document.getElementById('editLicense').value,
+                isLoggedIn: true
+            };
+            
+            localStorage.setItem('driverData', JSON.stringify(updatedData));
+            loadDriverProfile();
+            closeEditProfileModal();
+            showNotification('success-notification', 'Profile Updated', 'Your profile has been updated successfully!');
+        }
+        
+        // Check for notifications from hospital
+        async function checkNotifications() {
+            const driverData = localStorage.getItem('driverData');
+            if (!driverData) {
+                console.log('No driver data found');
+                return;
+            }
+            
+            try {
+                const driver = JSON.parse(driverData);
+                console.log('Checking notifications for:', driver.email);
+                
+                const response = await fetch(`http://localhost:5000/api/notifications/${driver.email}`);
+                console.log('Notification response status:', response.status);
+                
+                if (response.ok) {
+                    const notifications = await response.json();
+                    console.log('Notifications received:', notifications);
+                    
+                    notifications.forEach(notification => {
+                        console.log('Processing notification:', notification);
+                        
+                        if (notification.status === 'accepted') {
+                            showNotification('success-notification', 'Patient Accepted!', 
+                                `${notification.hospitalName} accepted your patient ${notification.patientName}. Proceed to hospital.`);
+                        } else if (notification.status === 'declined') {
+                            showNotification('error-notification', 'Patient Declined', 
+                                `${notification.hospitalName} declined ${notification.patientName}. Reason: ${notification.reason || 'No capacity'}`);
+                        }
+                        
+                        // Mark as read
+                        fetch(`http://localhost:5000/api/notifications/${notification._id}/read`, { method: 'POST' });
+                    });
+                } else {
+                    console.error('Failed to fetch notifications:', response.status);
+                }
+            } catch (error) {
+                console.error('Error checking notifications:', error);
+            }
+        }
+    </script>
+
+    <!-- BACKEND INTEGRATION CODE -->
+    <script>
+        document.querySelector("#sendBtn").addEventListener("click", async (e) => {
+            e.preventDefault();
+            
+            // Validate required fields
+            const patientName = document.querySelector("#patientName").value.trim();
+            const age = document.querySelector("#age").value.trim();
+            const gender = document.querySelector("#gender").value;
+            const medicalCondition = document.querySelector("#medicalCondition").value;
+            
+            if (!patientName || !age || !gender || !medicalCondition) {
+                showNotification('error-notification', 'Validation Error', 'Please fill in all required fields marked with *');
+                return;
+            }
+            
+            // Check if at least one medical need is selected
+            const medicalNeeds = document.querySelectorAll('input[name="medicalNeeds"]:checked');
+            if (medicalNeeds.length === 0) {
+                showNotification('error-notification', 'Validation Error', 'Please select at least one required medical resource');
+                return;
+            }
+            
+            // Check if a hospital is selected
+            if (!selectedHospital) {
+                showNotification('error-notification', 'Validation Error', 'Please select a hospital before sending patient data');
+                return;
+            }
+            
+            // Get medical needs
+            const medicalNeedsArray = [];
+            medicalNeeds.forEach(checkbox => {
+                medicalNeedsArray.push(checkbox.value);
+            });
+
+            // Get driver data from localStorage (login data)
+            let driverInfo = { driverName: 'Unknown Driver', phone: 'N/A', email: 'N/A', licenceNumber: 'N/A' };
+            const storedDriverData = localStorage.getItem('driverData');
+            if (storedDriverData) {
+                try {
+                    const localDriver = JSON.parse(storedDriverData);
+                    driverInfo = {
+                        driverName: localDriver.driverName || 'Unknown Driver',
+                        phone: localDriver.phone || 'N/A',
+                        email: localDriver.email || 'N/A',
+                        licenceNumber: localDriver.licenceNumber || 'N/A'
+                    };
+                    console.log('Driver info from localStorage:', driverInfo);
+                } catch (error) {
+                    console.error('Error parsing driver data:', error);
+                }
+            } else {
+                console.log('No driver data found in localStorage');
+            }
+
+            const data = {
+                patientName: document.querySelector("#patientName").value,
+                age: document.querySelector("#age").value,
+                gender: document.querySelector("#gender").value,
+                medicalCondition: document.querySelector("#medicalCondition").value,
+                bloodPressure: document.querySelector("#bloodPressure").value,
+                heartRate: document.querySelector("#heartRate").value,
+                oxygenSaturation: document.querySelector("#oxygenSaturation").value,
+                allergies: document.querySelector("#allergies").value,
+                medicalNeeds: medicalNeedsArray,
+                additionalNotes: document.querySelector("#additionalNotes").value,
+                selectedHospital: selectedHospital ? selectedHospital.name : "Unknown Hospital",
+                driverEmail: driverInfo.email,
+                timestamp: new Date().toISOString(),
+                location: currentCoords ? {
+                    latitude: currentCoords.latitude,
+                    longitude: currentCoords.longitude
+                } : null
+            };
+            
+            console.log('Sending patient data with driver info:', data);
+            console.log('Driver info being sent:', driverInfo);
+
+            try {
+                // Show loading state
+                document.querySelector("#sendBtn").innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+                document.querySelector("#sendBtn").disabled = true;
+
+                const res = await fetch("http://localhost:5000/api/patient", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await res.json();
+                
+                if (res.ok) {
+                   
+                    showNotification('success-notification', 'Success!', result.message || 'Patient data saved successfully!');
+                    
+                   
+                    patientDetailsSection.style.display = 'none';
+                    confirmationSection.style.display = 'block';
+                    
+                    console.log("Patient data saved to backend:", data);
+                } else {
+                    throw new Error(result.message || 'Failed to save patient data');
+                }
+                
+            } catch (error) {
+                console.error("Error saving patient data:", error);
+                showNotification('error-notification', 'Error', error.message || 'Failed to save patient data. Please try again.');
+                
+              
+                document.querySelector("#sendBtn").innerHTML = '<i class="fas fa-paper-plane"></i> Send to Hospital';
+                document.querySelector("#sendBtn").disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

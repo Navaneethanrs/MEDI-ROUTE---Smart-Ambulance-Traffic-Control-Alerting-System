@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediRoute - Driver Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #0077ff;
+            --secondary: #005fcc;
+            --accent: #00d4ff;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+            --success: #28a745;
+            --danger: #dc3545;
+            --gradient: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            background: url('img1.jpg') center/cover, linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" opacity="0.05"><polygon fill="%23ffffff" points="1000,1000 0,1000 0,0 500,500"/></svg>');
+            background-size: cover;
+            z-index: -1;
+        }
+
+        .auth-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            width: 100%;
+            max-width: 550px;
+            position: relative;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .auth-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .auth-header {
+            background: var(--gradient);
+            padding: 40px 30px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 15s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .auth-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .auth-icon i {
+            font-size: 36px;
+            color: white;
+        }
+
+        .auth-header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .auth-header p {
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+            font-size: 16px;
+        }
+
+        .auth-form {
+            padding: 40px;
+            position: relative;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e8f0fe;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(0, 119, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .form-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 18px;
+            transition: color 0.3s ease;
+        }
+
+        .form-input:focus + .form-icon {
+            color: var(--primary);
+        }
+
+        .auth-button {
+            width: 100%;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 119, 255, 0.3);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .auth-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .auth-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0, 119, 255, 0.4);
+        }
+
+        .auth-button:hover::before {
+            left: 100%;
+        }
+
+        .auth-button:active {
+            transform: translateY(0);
+        }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .auth-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: rgba(0, 119, 255, 0.1);
+        }
+
+        .auth-link:hover {
+            color: white;
+            background: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        /* Form Toggle */
+        .form-toggle {
+            display: flex;
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 6px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .toggle-option {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            z-index: 1;
+            color: var(--dark);
+            font-size: 14px;
+        }
+
+        .toggle-option.active {
+            color: white;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            width: calc(50% - 6px);
+            height: calc(100% - 12px);
+            background: var(--gradient);
+            border-radius: 8px;
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 4px 15px rgba(0, 119, 255, 0.3);
+        }
+
+        .toggle-slider.login {
+            transform: translateX(0);
+        }
+
+        .toggle-slider.register {
+            transform: translateX(100%);
+        }
+
+        /* Form States */
+        .form-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .auth-container {
+                margin: 10px;
+                max-width: 100%;
+            }
+            
+            .auth-header {
+                padding: 30px 20px;
+            }
+            
+            .auth-form {
+                padding: 30px 20px;
+            }
+            
+            .auth-header h1 {
+                font-size: 24px;
+            }
+            
+            .auth-icon {
+                width: 70px;
+                height: 70px;
+            }
+            
+            .auth-icon i {
+                font-size: 32px;
+            }
+        }
+
+        /* Loading state */
+        .auth-button.loading {
+            pointer-events: none;
+        }
+
+        .auth-button.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .auth-button.loading span {
+            opacity: 0;
+        }
+
+        /* Error Message */
+        .error-message {
+            color: var(--danger);
+            font-size: 14px;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: shake 0.5s ease;
+            background: rgba(220, 53, 69, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 4px solid var(--danger);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Success Message */
+        .success-message {
+            color: var(--success);
+            font-size: 14px;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(40, 167, 69, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 4px solid var(--success);
+        }
+
+        /* Floating Animation */
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="auth-container floating">
+        <div class="auth-header">
+            <div class="auth-icon">
+                <i class="fas fa-ambulance"></i>
+            </div>
+            <h1 id="auth-title">Driver Login</h1>
+            <p id="auth-subtitle">Access your MediRoute dashboard</p>
+        </div>
+        
+        <div class="auth-form">
+            <div class="form-toggle">
+                <div class="toggle-slider login"></div>
+                <div class="toggle-option active" data-form="login">Login</div>
+                <div class="toggle-option" data-form="register">Register</div>
+            </div>
+            
+            <!-- Login Form -->
+            <form class="form-section active" id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="loginEmail">Email Address</label>
+                    <input type="email" class="form-input" id="loginEmail" placeholder="Enter your email" required>
+                    <i class="fas fa-envelope form-icon"></i>
+                    <div class="error-message" id="loginEmailError" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Please enter a valid email address</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="loginPassword">Password</label>
+                    <input type="password" class="form-input" id="loginPassword" placeholder="Enter your password" required>
+                    <i class="fas fa-lock form-icon"></i>
+                    <div class="error-message" id="loginPasswordError" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Please enter your password</span>
+                    </div>
+                </div>
+                
+                <button type="submit" class="auth-button" id="loginBtn">
+                    <span>Login to Dashboard</span>
+                </button>
+                
+                <div class="form-footer">
+                    <a href="#" class="auth-link" id="switchToRegister">
+                        <i class="fas fa-user-plus"></i>
+                        Don't have an account? Register
+                    </a>
+                </div>
+            </form>
+            
+            <!-- Register Form -->
+            <form class="form-section" id="registerForm">
+                <div class="form-group">
+                    <label class="form-label" for="hospitalName">Hospital Name</label>
+                    <input type="text" class="form-input" id="hospitalName" placeholder="Enter hospital name" required>
+                    <i class="fas fa-hospital form-icon"></i>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="driverName">Full Name</label>
+                    <input type="text" class="form-input" id="driverName" placeholder="Enter your full name" required>
+                    <i class="fas fa-user form-icon"></i>
+                    <div class="error-message" id="driverNameError" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Please enter your full name</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="registerEmail">Email Address</label>
+                    <input type="email" class="form-input" id="registerEmail" placeholder="Enter your email" required>
+                    <i class="fas fa-envelope form-icon"></i>
+                    <div class="error-message" id="registerEmailError" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Please enter a valid email address</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="registerPassword">Password</label>
+                    <input type="password" class="form-input" id="registerPassword" placeholder="Create a password" required>
+                    <i class="fas fa-lock form-icon"></i>
+                    <div class="error-message" id="registerPasswordError" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Password must be at least 6 characters</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="phone">Phone Number</label>
+                    <input type="tel" class="form-input" id="phone" placeholder="Enter your phone number" required>
+                    <i class="fas fa-phone form-icon"></i>
+                    <div class="error-message" id="phoneError" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Please enter a valid phone number</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="licenceNumber">License Number</label>
+                    <input type="text" class="form-input" id="licenceNumber" placeholder="Enter your license number" required>
+                    <i class="fas fa-id-card form-icon"></i>
+                    <div class="error-message" id="licenceNumberError" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Please enter your license number</span>
+                    </div>
+                </div>
+                
+                <div class="form-footer">
+                    <button type="button" class="auth-button" id="declineBtn" style="background: #dc3545;">
+                        <i class="fas fa-times"></i> Decline
+                    </button>
+                    <button type="submit" class="auth-button" id="acceptBtn">
+                        <i class="fas fa-check"></i> Accept & Continue
+                    </button>
+                </div>
+                
+                <div class="form-footer">
+                    <a href="#" class="auth-link" id="switchToLogin">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Already have an account? Login
+                    </a>
+                </div>
+            </form>
+        </div>
+        
+    </div>
+
+    <script>
+        // Toggle between forms
+        function toggleForm(formType) {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const toggleSlider = document.querySelector('.toggle-slider');
+            const authTitle = document.getElementById('auth-title');
+            const authSubtitle = document.getElementById('auth-subtitle');
+            
+            // Clear all error messages
+            document.querySelectorAll('.error-message').forEach(error => {
+                error.style.display = 'none';
+            });
+            
+            if (formType === 'login') {
+                loginForm.classList.add('active');
+                registerForm.classList.remove('active');
+                toggleSlider.classList.remove('register');
+                toggleSlider.classList.add('login');
+                authTitle.textContent = 'Driver Login';
+                authSubtitle.textContent = 'Access your MediRoute dashboard';
+                
+                // Update toggle buttons
+                document.querySelectorAll('.toggle-option').forEach(option => {
+                    if (option.dataset.form === 'login') {
+                        option.classList.add('active');
+                    } else {
+                        option.classList.remove('active');
+                    }
+                });
+            } else {
+                loginForm.classList.remove('active');
+                registerForm.classList.add('active');
+                toggleSlider.classList.remove('login');
+                toggleSlider.classList.add('register');
+                authTitle.textContent = 'Driver Register';
+                authSubtitle.textContent = 'Join the MediRoute network';
+                
+                // Update toggle buttons
+                document.querySelectorAll('.toggle-option').forEach(option => {
+                    if (option.dataset.form === 'register') {
+                        option.classList.add('active');
+                    } else {
+                        option.classList.remove('active');
+                    }
+                });
+            }
+        }
+        
+        // Show error message
+        function showError(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            errorElement.querySelector('span').textContent = message;
+            errorElement.style.display = 'flex';
+        }
+        
+        // Hide error message
+        function hideError(elementId) {
+            document.getElementById(elementId).style.display = 'none';
+        }
+        
+        // Validate login form
+        function validateLogin() {
+            let isValid = true;
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            // Clear previous errors
+            hideError('loginEmailError');
+            hideError('loginPasswordError');
+            
+            // Validate email
+            if (!/^\S+@\S+\.\S+$/.test(email)) {
+                showError('loginEmailError', 'Please enter a valid email address');
+                isValid = false;
+            }
+            
+            // Validate password
+            if (password.length === 0) {
+                showError('loginPasswordError', 'Please enter your password');
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+        
+        // Validate register form
+        function validateRegister() {
+            let isValid = true;
+            const driverName = document.getElementById('driverName').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            const phone = document.getElementById('phone').value.trim();
+            const licenceNumber = document.getElementById('licenceNumber').value.trim();
+            
+            // Clear previous errors
+            hideError('driverNameError');
+            hideError('registerEmailError');
+            hideError('registerPasswordError');
+            hideError('phoneError');
+            hideError('licenceNumberError');
+            
+            // Validate hospital name
+            if (hospitalName === '') {
+                showError('hospitalNameError', 'Please enter hospital name');
+                isValid = false;
+            }
+            
+            // Validate driver name
+            if (driverName.length < 2) {
+                showError('driverNameError', 'Please enter a valid full name');
+                isValid = false;
+            }
+            
+            // Validate email
+            if (!/^\S+@\S+\.\S+$/.test(email)) {
+                showError('registerEmailError', 'Please enter a valid email address');
+                isValid = false;
+            }
+            
+            // Validate password
+            if (password.length < 6) {
+                showError('registerPasswordError', 'Password must be at least 6 characters long');
+                isValid = false;
+            }
+            
+            // Validate phone
+            if (phone.length < 10) {
+                showError('phoneError', 'Please enter a valid phone number');
+                isValid = false;
+            }
+            
+            // Validate license number
+            if (licenceNumber.length < 5) {
+                showError('licenceNumberError', 'Please enter a valid license number');
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is already logged in
+            checkExistingSession();
+            
+            // Form toggle event listeners
+            document.querySelectorAll('.toggle-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    toggleForm(this.dataset.form);
+                });
+            });
+            
+            document.getElementById('switchToRegister').addEventListener('click', function(e) {
+                e.preventDefault();
+                toggleForm('register');
+            });
+            
+            document.getElementById('switchToLogin').addEventListener('click', function(e) {
+                e.preventDefault();
+                toggleForm('login');
+            });
+            
+            // Login form submission
+            document.getElementById('loginForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                if (!validateLogin()) return;
+                
+                const loginBtn = document.getElementById('loginBtn');
+                loginBtn.classList.add('loading');
+                
+                const email = document.getElementById('loginEmail').value.trim();
+                const password = document.getElementById('loginPassword').value;
+                
+                try {
+                    const response = await fetch("http://localhost:5000/api/driver/login", {
+                        method: "POST",
+                        headers: { 
+                            "Content-Type": "application/json" 
+                        },
+                        body: JSON.stringify({ 
+                            email, 
+                            password 
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        // Login successful - store complete driver data in session
+                        const driverData = {
+                            driverName: result.driver.driverName,
+                            email: result.driver.email,
+                            phone: result.driver.phone,
+                            licenceNumber: result.driver.licenceNumber,
+                            createdAt: result.driver.createdAt,
+                            isLoggedIn: true,
+                            loginTime: new Date().toISOString()
+                        };
+                        
+                        localStorage.setItem('driverData', JSON.stringify(driverData));
+                        
+                        // Show success message in form
+                        const successDiv = document.createElement('div');
+                        successDiv.className = 'success-message';
+                        successDiv.innerHTML = `<i class="fas fa-check-circle"></i><span>Welcome ${result.driver.driverName}! Login successful.</span>`;
+                        document.getElementById('loginForm').appendChild(successDiv);
+                        
+                        setTimeout(() => {
+                            window.location.href = "abm%20dri.html";
+                        }, 1500);
+                        
+                        // Clear form
+                        document.getElementById('loginForm').reset();
+                        
+                    } else {
+                        throw new Error(result.message || 'Login failed');
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    showError('loginPasswordError', error.message || 'Invalid email or password');
+                } finally {
+                    loginBtn.classList.remove('loading');
+                }
+            });
+            
+            // Register form submission
+            document.getElementById('registerForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                if (!validateRegister()) return;
+                
+                const registerBtn = document.getElementById('registerBtn');
+                registerBtn.classList.add('loading');
+                
+                const hospitalName = document.getElementById('hospitalName').value.trim();
+                const driverName = document.getElementById('driverName').value.trim();
+                const email = document.getElementById('registerEmail').value.trim();
+                const password = document.getElementById('registerPassword').value;
+                const phone = document.getElementById('phone').value.trim();
+                const licenceNumber = document.getElementById('licenceNumber').value.trim();
+                
+                try {
+                    const response = await fetch("http://localhost:5000/api/driver/register", {
+                        method: "POST",
+                        headers: { 
+                            "Content-Type": "application/json" 
+                        },
+                        body: JSON.stringify({ 
+                            hospitalName, 
+                            driverName, 
+                            email, 
+                            password, 
+                            phone, 
+                            licenceNumber 
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        // Registration successful - store in session and show success
+                        localStorage.setItem('driverData', JSON.stringify({
+                            driverName, 
+                            email, 
+                            phone, 
+                            licenceNumber,
+                            isLoggedIn: true
+                        }));
+                        
+                        // Show success message in form
+                        const successDiv = document.createElement('div');
+                        successDiv.className = 'success-message';
+                        successDiv.innerHTML = `<i class="fas fa-check-circle"></i><span>Registration successful! You can now login.</span>`;
+                        document.getElementById('registerForm').appendChild(successDiv);
+                        
+                        setTimeout(() => {
+                            toggleForm('login');
+                            document.getElementById('loginEmail').value = email;
+                        }, 1500);
+                        
+
+                    } else {
+                        throw new Error(result.message || 'Registration failed');
+                    }
+                } catch (error) {
+                    console.error('Registration error:', error);
+                    showError('registerEmailError', error.message || 'Registration failed. Please try again.');
+                } finally {
+                    registerBtn.classList.remove('loading');
+                }
+            });
+            
+            // Add input focus effects and clear errors on input
+            document.querySelectorAll('.form-input').forEach(input => {
+                input.addEventListener('focus', function() {
+                    // Clear error when user starts typing
+                    const errorId = this.id + 'Error';
+                    if (document.getElementById(errorId)) {
+                        hideError(errorId);
+                    }
+                });
+            });
+        });
+        
+        // Check for existing session
+        function checkExistingSession() {
+            const storedData = localStorage.getItem('driverData');
+            if (storedData) {
+                try {
+                    const driverData = JSON.parse(storedData);
+                    if (driverData.isLoggedIn) {
+                        console.log('✅ Found existing session for:', driverData.driverName);
+                        // You could redirect to dashboard or show logged-in state
+                        // window.location.href = 'ambulance-dashboard.html';
+                    }
+                } catch (error) {
+                    console.error('Error parsing stored session data:', error);
+                    localStorage.removeItem('driverData');
+                }
+            }
+        }
+        
+    </script>
+</body>
+</html>

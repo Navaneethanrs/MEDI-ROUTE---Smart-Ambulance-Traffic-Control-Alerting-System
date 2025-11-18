@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediRoute - Smart Ambulance Traffic Control</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #e63946;
+            --secondary: #1d3557;
+            --accent: #457b9d;
+            --light: #f1faee;
+            --dark: #0d1b2a;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            color: var(--primary);
+            font-size: 28px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            color: var(--secondary);
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--secondary);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--primary);
+        }
+
+        .cta-button {
+            background-color: var(--primary);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .cta-button:hover {
+            background-color: #c1121f;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(230, 57, 70, 0.3);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
+            color: white;
+            padding: 150px 0 100px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,186.7C384,213,480,235,576,213.3C672,192,768,128,864,128C960,128,1056,192,1152,197.3C1248,203,1344,149,1392,122.7L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .hero-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-text {
+            flex: 1;
+            max-width: 600px;
+        }
+
+        .hero-text h2 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .hero-text p {
+            font-size: 18px;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .hero-image {
+            flex: 1;
+            text-align: center;
+        }
+
+        .hero-image img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Quick Access Section */
+        .quick-access {
+            padding: 100px 0;
+            background-color: white;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-title h2 {
+            font-size: 36px;
+            color: var(--secondary);
+            margin-bottom: 15px;
+        }
+
+        .section-title p {
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .access-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .access-title {
+            font-size: 32px;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .access-subtitle {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        .access-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .access-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 200px;
+            height: 200px;
+            border-radius: 15px;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .access-button:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .ambulance-button {
+            background: linear-gradient(135deg, var(--primary) 0%, #c1121f 100%);
+        }
+
+        .hospital-button {
+            background: linear-gradient(135deg, var(--accent) 0%, #3a6b8c 100%);
+        }
+
+        .access-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        .access-button h3 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .access-features {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .access-feature {
+            display: flex;
+            align-items: center;
+            color: #666;
+        }
+
+        .access-feature i {
+            margin-right: 8px;
+            color: var(--accent);
+        }
+
+        /* Nearby Hospitals Section */
+        .nearby-section { padding: 100px 0; background-color: white; }
+        .nearby-card { background: #fff; border-radius: 16px; box-shadow: 0 12px 30px rgba(0,0,0,0.08); padding: 24px; }
+        .nearby-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        .nearby-title { font-size: 24px; color: var(--secondary); font-weight: 700; }
+        .nearby-search { position: relative; }
+        .nearby-search input { width: 280px; max-width: 40vw; padding: 10px 14px 10px 36px; border-radius: 20px; border: 1px solid #e5e7eb; outline: none; background:#f9fafb; }
+        .nearby-search i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; }
+        .nearby-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+        .nearby-item { display: flex; gap: 12px; padding: 14px; border: 1px solid #eef2f7; border-radius: 12px; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.04); cursor: pointer; transition: transform .15s ease, box-shadow .15s ease; }
+        .nearby-item:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
+        .nearby-icon { flex: 0 0 auto; width: 44px; height: 44px; border-radius: 10px; display: flex; align-items:center; justify-content: center; background: rgba(69,123,157,.08); color: var(--accent); }
+        .nearby-meta { font-size: 12px; color: #6b7280; }
+        .nearby-name { font-weight: 700; color: #111827; }
+        .nearby-empty { text-align: center; padding: 40px; color: #6b7280; }
+        .nearby-empty i { font-size: 42px; color: #9ca3af; margin-bottom: 8px; }
+        .nearby-footer { margin-top: 12px; font-size: 12px; color: #6b7280; }
+        @media (max-width: 640px){ .nearby-search input { width: 200px; max-width: 60vw; } }
+
+        /* Patient Modal */
+        .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: none; align-items: center; justify-content: center; z-index: 2000; }
+        .modal { background: #fff; width: 95%; max-width: 560px; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); overflow: hidden; }
+        .modal-header { padding: 16px 20px; border-bottom: 1px solid #eef2f7; display:flex; align-items:center; justify-content: space-between; }
+        .modal-title { font-size: 18px; font-weight: 700; color: var(--secondary); }
+        .modal-close { border: none; background: transparent; font-size: 20px; cursor: pointer; color: #6b7280; }
+        .modal-body { padding: 20px; display: grid; gap: 12px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .form-control { display: grid; gap: 6px; }
+        .form-control label { font-size: 12px; color: #374151; font-weight: 600; }
+        .form-control input, .form-control select, .form-control textarea { border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; outline: none; }
+        .form-control textarea { min-height: 80px; resize: vertical; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; padding: 0 20px 20px; }
+        .btn { border: none; border-radius: 10px; padding: 10px 16px; font-weight: 700; cursor: pointer; }
+        .btn-secondary { background: #eef2f7; color: #111827; }
+        .btn-primary { background: linear-gradient(135deg, var(--primary) 0%, #c1121f 100%); color: #fff; }
+
+        /* Stats Section */
+        .stats {
+            padding: 100px 0;
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
+            color: white;
+            text-align: center;
+            position: relative;
+        }
+
+        .stats::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        }
+
+        .stats .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .stats .section-title h2 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            color: white;
+        }
+
+        .stats .section-title p {
+            font-size: 20px;
+            font-weight: 500;
+            opacity: 0.95;
+            max-width: 700px;
+            margin: 0 auto;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .stat-item {
+            padding: 30px 20px;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-8px) scale(1.05);
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-item:hover::before {
+            opacity: 1;
+        }
+
+        .stat-item h3 {
+            font-size: 56px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
+            font-weight: 800;
+            color: white;
+        }
+
+        .stat-item:hover h3 {
+            transform: scale(1.1);
+            text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .stat-item p {
+            font-size: 19px;
+            font-weight: 600;
+            opacity: 1;
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+            color: white;
+        }
+
+        .stat-item:hover p {
+            transform: translateY(-2px);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 0;
+            background-color: white;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-align: center;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            background-color: rgba(230, 57, 70, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .feature-icon i {
+            font-size: 30px;
+            color: var(--primary);
+        }
+
+        .feature-card h3 {
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: var(--secondary);
+        }
+
+        .feature-card p {
+            color: #666;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 100px 0;
+            background-color: white;
+            text-align: center;
+        }
+
+        .cta-section h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: var(--secondary);
+        }
+
+        .cta-section p {
+            max-width: 600px;
+            margin: 0 auto 30px;
+            color: #666;
+        }
+
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .secondary-button {
+            background-color: transparent;
+            color: var(--secondary);
+            border: 2px solid var(--secondary);
+            padding: 10px 25px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .secondary-button:hover {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 70px 0 20px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 50px;
+        }
+
+        .footer-column h3 {
+            font-size: 20px;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background-color: var(--primary);
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 12px;
+        }
+
+        .footer-column a {
+            color: #aaa;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-column a:hover {
+            color: white;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+        }
+
+        .social-links a:hover {
+            background-color: var(--primary);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .hero-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .hero-text {
+                margin-bottom: 50px;
+            }
+            
+            .access-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .access-button {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            nav ul {
+                gap: 15px;
+            }
+            
+            .hero-text h2 {
+                font-size: 36px;
+            }
+            
+            .section-title h2 {
+                font-size: 30px;
+            }
+            
+            .access-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <i class="fas fa-ambulance"></i>
+                <h1>Medi <span>Route</span></h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="home.html">Home</a></li>
+                    <li><a href="quick.html">Quick Access</a></li>
+                    <li><a href="how.html">How It Works</a></li>
+                    <li><a href="abt.html">About Us</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="driver.html">Driver Login</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container hero-content">
+            <div class="hero-text">
+                <h2>Revolutionizing Emergency Medical Response</h2>
+                <p>Medi Route is an IoT-based Smart Ambulance Traffic Control System designed to reduce ambulance delays, provide real-time hospital connectivity, and save lives through efficient coordination.</p>
+                <a href="#" class="cta-button">Learn More</a>
+            </div>
+            <div class="hero-image">
+                <!-- Placeholder for ambulance image -->
+                <div style="width: 100%; height: 300px; background-color: rgba(255,255,255,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-ambulance" style="font-size: 150px; opacity: 0.7;"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Access Section -->
+    <section class="quick-access">
+        <div class="container">
+            <div class="section-title">
+                <h2>Quick Access</h2>
+                <p>Select your role to access the MediRoute system</p>
+            </div>
+            
+            <div class="access-container">
+                <h2 class="access-title">Prioritize Life. Optimize Route.</h2>
+                <p class="access-subtitle">Select your user role to access the real-time smart traffic control system.</p>
+                
+                <div class="access-buttons">
+                    <a href="abm dri.html" class="access-button ambulance-button">
+                        <i class="fas fa-ambulance access-icon"></i>
+                        <h3>Ambulance Driver</h3>
+                    </a>
+                    
+                    <a href="hospital.html" class="access-button hospital-button">
+                        <i class="fas fa-hospital access-icon"></i>
+                        <h3>Hospital Access</h3>
+                    </a>
+                </div>
+                
+                <div class="access-features">
+                    <div class="access-feature">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Secure Access</span>
+                    </div>
+                    <div class="access-feature">
+                        <i class="fas fa-bolt"></i>
+                        <span>Real-time Updates</span>
+                    </div>
+                    <div class="access-feature">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <span>Smart Routing</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Nearby Hospitals Section -->
+    <section class="nearby-section">
+        <div class="container">
+            <div class="nearby-card">
+                <div class="nearby-header">
+                    <div class="nearby-title">Nearby Hospitals</div>
+                    <div class="nearby-search">
+                        <i class="fas fa-search"></i>
+                        <input id="searchInput" type="text" placeholder="Search hospitals..." />
+                    </div>
+                </div>
+                <div id="nearbyList" class="nearby-list"></div>
+                <div id="nearbyEmpty" class="nearby-empty" style="display:none;">
+                    <div><i class="fas fa-hospital"></i></div>
+                    <div><strong>No nearby hospitals found</strong></div>
+                    <div class="nearby-footer">Try expanding your search radius or check your location.</div>
+                </div>
+                <div id="nearbyStatus" class="nearby-footer"></div>
+                <script>
+                    const radius = 10000; // Increased hospital search radius to 10km
+                    // Overpass API query to improve results
+                    const overpassApiUrl = 'https://overpass-api.eu/api/interpreter';
+                    const query = `
+                        [out:json][timeout:25];
+                        (
+                          node["amenity"="hospital"](${radius});
+                          way["amenity"="hospital"](${radius});
+                          relation["amenity"="hospital"](${radius});
+                        );
+                        out body;
+                        >;
+                        out skel qt;
+                    `;
+                    fetch(overpassApiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: query,
+                    })
+                    .then(response => response.json())
+                    .then(data => console.log(data))
+                    .catch(error => console.error(error));
+                </script>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats">
+        <div class="container">
+            <div class="section-title">
+                <h2>Impactful Results</h2>
+                <p>Medi Route is making a difference in emergency medical response times.</p>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3>40%</h3>
+                    <p>Reduction in Response Time</p>
+                </div>
+                <div class="stat-item">
+                    <h3>500+</h3>
+                    <p>Lives Saved Monthly</p>
+                </div>
+                <div class="stat-item">
+                    <h3>85%</h3>
+                    <p>Faster Hospital Arrival</p>
+                </div>
+                <div class="stat-item">
+                    <h3>30+</h3>
+                    <p>Cities Using Medi Route</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <div class="section-title">
+                <h2>Key Features</h2>
+                <p>Our comprehensive system connects ambulances, hospitals, and traffic infrastructure to create a seamless emergency response network.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-hospital"></i>
+                    </div>
+                    <h3>Nearby Hospital Detection</h3>
+                    <p>Ambulance drivers can instantly view nearby hospitals based on GPS location for the fastest route.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bed"></i>
+                    </div>
+                    <h3>Bed Booking System</h3>
+                    <p>Reserve patient beds in advance based on real-time hospital availability and requirements.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-file-medical"></i>
+                    </div>
+                    <h3>Medical Requirement Reporting</h3>
+                    <p>Send patient details and medical needs to hospitals before arrival for better preparation.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <h3>Ambulance Tracking</h3>
+                    <p>Hospitals can track ambulances in real-time to prepare for patient arrival.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-traffic-light"></i>
+                    </div>
+                    <h3>Traffic Signal Control</h3>
+                    <p>Automatically switch traffic signals to green when ambulances approach intersections.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <h3>Life-Saving Coordination</h3>
+                    <p>Efficient coordination between drivers, hospitals, and traffic systems to save lives.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Medi Route</h3>
+                    <p>An IoT-based Smart Ambulance Traffic Control System designed to improve emergency medical response and save lives.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="https://www.linkedin.com/in/navaneethan-sankar-743751367/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://www.linkedin.com/in/niranjan-gobinathan-0b67b4321/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://www.instagram.com/n.o.v.a.__.18/" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.instagram.com/nirxnjxn_off_/" target="_blank"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#">Features</a></li>
+                        <li><a href="#">How It Works</a></li>
+                        <li><a href="#">Pricing</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Features</h3>
+                    <ul>
+                        <li><a href="#">Hospital Detection</a></li>
+                        <li><a href="#">Bed Booking</a></li>
+                        <li><a href="#">Medical Reporting</a></li>
+                        <li><a href="#">Ambulance Tracking</a></li>
+                        <li><a href="#">Traffic Control</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contact Us</h3>
+                    <ul>
+                        <li><i class="fas fa-map-marker-alt"></i> 123 Healthcare Ave, MedCity</li>
+                        <li><i class="fas fa-phone"></i> +1 (555) 123-4567</li>
+                        <li><i class="fas fa-envelope"></i> info@mediroute.com</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 Medi Route. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Patient Details Modal -->
+    <div id="patientModal" class="modal-backdrop" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <div class="modal-header">
+                <div id="modalTitle" class="modal-title">Patient Details</div>
+                <button id="modalClose" class="modal-close" aria-label="Close">&times;</button>
+            </div>
+            <form id="patientForm">
+                <div class="modal-body">
+                    <div class="form-control">
+                        <label>Selected Hospital</label>
+                        <input id="hospitalName" type="text" readonly />
+                    </div>
+                    <div class="form-row">
+                        <div class="form-control">
+                            <label>Patient Name</label>
+                            <input id="patientName" type="text" required />
+                        </div>
+                        <div class="form-control">
+                            <label>Age</label>
+                            <input id="patientAge" type="number" min="0" max="120" required />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-control">
+                            <label>Gender</label>
+                            <select id="patientGender" required>
+                                <option value="">Select</option>
+                                <option>Male</option>
+                                <option>Female</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
+                        <div class="form-control">
+                            <label>Contact Number</label>
+                            <input id="patientPhone" type="tel" pattern="[0-9]{10}" placeholder="10-digit number" required />
+                        </div>
+                    </div>
+                    <div class="form-control">
+                        <label>Condition / Notes</label>
+                        <textarea id="patientNotes" placeholder="Brief description of the condition"></textarea>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="modalCancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+    (function(){
+        const listEl = document.getElementById('nearbyList');
+        const emptyEl = document.getElementById('nearbyEmpty');
+        const statusEl = document.getElementById('nearbyStatus');
+        const searchEl = document.getElementById('searchInput');
+
+        const modal = document.getElementById('patientModal');
+        const modalClose = document.getElementById('modalClose');
+        const modalCancel = document.getElementById('modalCancel');
+        const form = document.getElementById('patientForm');
+        const hospitalNameEl = document.getElementById('hospitalName');
+
+        let currentPosition = null;
+        let hospitals = [];
+
+        function haversine(lat1, lon1, lat2, lon2){
+            const toRad = d=>d*Math.PI/180;
+            const R = 6371000; // meters
+            const dLat = toRad(lat2-lat1);
+            const dLon = toRad(lon2-lon1);
+            const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        function render(list){
+            listEl.innerHTML = '';
+            if(!list || list.length === 0){
+                listEl.style.display = 'none';
+                emptyEl.style.display = 'block';
+                return;
+            }
+            emptyEl.style.display = 'none';
+            listEl.style.display = 'grid';
+
+            for(const h of list){
+                const item = document.createElement('div');
+                item.className = 'nearby-item';
+                item.innerHTML = `
+                    <div class=\"nearby-icon\"><i class=\"fas fa-hospital\"></i></div>
+                    <div>
+                        <div class=\"nearby-name\">${h.name || 'Unnamed Hospital'}</div>
+                        <div class=\"nearby-meta\">${(h.distance/1000).toFixed(2)} km • ${h.addr || ''}</div>
+                    </div>
+                `;
+                item.addEventListener('click', ()=>openModal(h));
+                listEl.appendChild(item);
+            }
+        }
+
+        function openModal(h){
+            hospitalNameEl.value = h.name || 'Unnamed Hospital';
+            modal.style.display = 'flex';
+            modal.setAttribute('aria-hidden','false');
+        }
+        function closeModal(){
+            modal.style.display = 'none';
+            modal.setAttribute('aria-hidden','true');
+            form.reset();
+        }
+        modalClose.addEventListener('click', closeModal);
+        modalCancel.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e)=>{ if(e.target === modal) closeModal(); });
+
+        form.addEventListener('submit', (e)=>{
+            e.preventDefault();
+            const data = {
+                hospital: hospitalNameEl.value,
+                name: document.getElementById('patientName').value,
+                age: document.getElementById('patientAge').value,
+                gender: document.getElementById('patientGender').value,
+                phone: document.getElementById('patientPhone').value,
+                notes: document.getElementById('patientNotes').value,
+            };
+            console.log('Patient submission:', data);
+            alert('Patient details submitted!');
+            closeModal();
+        });
+
+        searchEl.addEventListener('input', ()=>{
+            const q = searchEl.value.trim().toLowerCase();
+            const filtered = hospitals.filter(h => (h.name||'').toLowerCase().includes(q));
+            render(filtered);
+        });
+
+        function setStatus(msg){ statusEl.textContent = msg || ''; }
+
+        async function fetchHospitals(lat, lon){
+            const radius = 10000; // 10km
+            const query = `[
+                out:json];
+                (
+                  node["amenity"="hospital"](around:${radius},${lat},${lon});
+                  way["amenity"="hospital"](around:${radius},${lat},${lon});
+                  relation["amenity"="hospital"](around:${radius},${lat},${lon});
+                );
+                out tags center;`;
+            setStatus('Searching nearby hospitals...');
+            try {
+                const r = await fetch('https://overpass-api.de/api/interpreter', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ data: query })
+                });
+                const json = await r.json();
+                const feats = json.elements || [];
+                const mapped = feats.map(el => {
+                    const latc = el.lat || (el.center && el.center.lat);
+                    const lonc = el.lon || (el.center && el.center.lon);
+                    const name = el.tags && (el.tags.name || el.tags['name:en']);
+                    const addr = el.tags ? [el.tags['addr:street'], el.tags['addr:city']].filter(Boolean).join(', ') : '';
+                    const dist = (latc && lonc) ? haversine(lat, lon, latc, lonc) : Infinity;
+                    return { name, addr, distance: dist };
+                }).filter(x => isFinite(x.distance));
+                mapped.sort((a,b)=>a.distance-b.distance);
+                hospitals = mapped;
+                render(hospitals);
+                setStatus(`Showing ${mapped.length} hospital(s) within ${radius/1000} km`);
+            } catch (err) {
+                console.error(err);
+                setStatus('Failed to fetch hospitals. Please try again.');
+                render([]);
+            }
+        }
+
+        function init(){
+            if(!navigator.geolocation){
+                setStatus('Geolocation not supported by this browser.');
+                render([]);
+                return;
+            }
+            setStatus('Requesting your location...');
+            navigator.geolocation.getCurrentPosition(async (pos)=>{
+                currentPosition = pos.coords;
+                await fetchHospitals(currentPosition.latitude, currentPosition.longitude);
+            }, (err)=>{
+                console.warn(err);
+                setStatus('Location access denied. Please enable location and refresh.');
+                render([]);
+            }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 300000 });
+        }
+
+        init();
+    })();
+    </script>
+
+</body>
+</html>
