@@ -442,7 +442,7 @@ app.post("/api/notifications/:id/read", async (req, res) => {
 app.use(express.static(path.join(__dirname, "client/dist")));
 
 // Fallback for React Router (Single Page Application)
-app.get('/:splat*', (req, res) => {
+app.get(/.*/, (req, res) => {
   res.sendFile(path.join(__dirname, "client/dist", "index.html"));
 });
 
