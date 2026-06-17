@@ -1,0 +1,396 @@
+/* Driver Authentication page styling */
+
+.auth-body-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+    overflow-x: hidden;
+    background: url('/img1.jpg') center/cover, linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    width: 100vw;
+}
+
+.auth-body-container::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" opacity="0.05"><polygon fill="%23ffffff" points="1000,1000 0,1000 0,0 500,500"/></svg>');
+    background-size: cover;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.auth-container {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    width: 100%;
+    max-width: 550px;
+    position: relative;
+    z-index: 2;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.auth-container.floating {
+    animation: floating 4s ease-in-out infinite;
+}
+
+.auth-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.auth-header {
+    background: var(--gradient, linear-gradient(135deg, #0077ff 0%, #00d4ff 100%));
+    padding: 40px 30px;
+    text-align: center;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: rotate-bg 15s linear infinite;
+}
+
+@keyframes rotate-bg {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.auth-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    position: relative;
+    z-index: 1;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.auth-icon i {
+    font-size: 36px;
+    color: white;
+}
+
+.auth-header h1 {
+    font-size: 28px;
+    margin-bottom: 10px;
+    position: relative;
+    z-index: 1;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: white;
+}
+
+.auth-header p {
+    opacity: 0.9;
+    position: relative;
+    z-index: 1;
+    font-size: 16px;
+}
+
+.auth-form {
+    padding: 40px;
+    position: relative;
+}
+
+.form-group {
+    margin-bottom: 25px;
+    position: relative;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #1d3557;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: left;
+}
+
+.form-input {
+    width: 100%;
+    padding: 15px 20px;
+    border: 2px solid #e8f0fe;
+    border-radius: 12px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    background: #f8fafc;
+    font-weight: 500;
+    color: #0d1b2a;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #0077ff;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(0, 119, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+.form-icon {
+    position: absolute;
+    right: 20px;
+    top: 45px;
+    color: #9ca3af;
+    font-size: 18px;
+    transition: color 0.3s ease;
+}
+
+.form-input:focus + .form-icon {
+    color: #0077ff;
+}
+
+.auth-button {
+    width: 100%;
+    background: var(--gradient, linear-gradient(135deg, #0077ff 0%, #00d4ff 100%));
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0, 119, 255, 0.3);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.auth-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.6s;
+}
+
+.auth-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(0, 119, 255, 0.4);
+}
+
+.auth-button:hover::before {
+    left: 100%;
+}
+
+.auth-button:active {
+    transform: translateY(0);
+}
+
+.form-footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 25px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.auth-link {
+    color: #0077ff;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    background: rgba(0, 119, 255, 0.1);
+    cursor: pointer;
+}
+
+.auth-link:hover {
+    color: white;
+    background: #0077ff;
+    transform: translateY(-2px);
+}
+
+/* Form Toggle */
+.form-toggle {
+    display: flex;
+    background: #f1f5f9;
+    border-radius: 12px;
+    padding: 6px;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.toggle-option {
+    flex: 1;
+    text-align: center;
+    padding: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    z-index: 2;
+    color: #1a1a2e;
+    font-size: 14px;
+}
+
+.toggle-option.active {
+    color: white;
+}
+
+.toggle-slider {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: calc(50% - 6px);
+    height: calc(100% - 12px);
+    background: var(--gradient, linear-gradient(135deg, #0077ff 0%, #00d4ff 100%));
+    border-radius: 8px;
+    transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    box-shadow: 0 4px 15px rgba(0, 119, 255, 0.3);
+    z-index: 1;
+}
+
+.toggle-slider.login {
+    transform: translateX(0);
+}
+
+.toggle-slider.register {
+    transform: translateX(100%);
+}
+
+/* Form States */
+.form-section {
+    display: none;
+    animation: fadeIn 0.5s ease;
+}
+
+.form-section.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    .auth-container {
+        margin: 10px;
+        max-width: 100%;
+    }
+    
+    .auth-header {
+        padding: 30px 20px;
+    }
+    
+    .auth-form {
+        padding: 30px 20px;
+    }
+    
+    .auth-header h1 {
+        font-size: 24px;
+    }
+    
+    .auth-icon {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .auth-icon i {
+        font-size: 32px;
+    }
+}
+
+/* Loading state */
+.auth-button.loading {
+    pointer-events: none;
+}
+
+.auth-button.loading::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 2px solid transparent;
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.auth-button.loading span {
+    opacity: 0;
+}
+
+/* Error Message */
+.error-message {
+    color: #dc3545;
+    font-size: 14px;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: shake 0.5s ease;
+    background: rgba(220, 53, 69, 0.1);
+    padding: 10px;
+    border-radius: 8px;
+    border-left: 4px solid #dc3545;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* Success Message */
+.success-message {
+    color: #28a745;
+    font-size: 14px;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(40, 167, 69, 0.1);
+    padding: 10px;
+    border-radius: 8px;
+    border-left: 4px solid #28a745;
+}
+
+/* Floating Animation */
+@keyframes floating {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
