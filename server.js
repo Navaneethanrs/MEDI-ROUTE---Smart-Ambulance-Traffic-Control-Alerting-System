@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const path = require("path");
 
 const app = express();
 app.use(cors());
@@ -438,11 +439,11 @@ app.post("/api/notifications/:id/read", async (req, res) => {
 // =====================================================
 // 📁 Serve static files (after API routes)
 // =====================================================
-app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname, "client/dist")));
 
-// Redirect root to home.html
-app.get('/', (req, res) => {
-  res.redirect('/home.html');
+// Fallback for React Router (Single Page Application)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, "client/dist", "index.html"));
 });
 
 // =====================================================
