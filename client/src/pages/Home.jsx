@@ -167,7 +167,7 @@ const Home = () => {
             <a href="/about" className="cta-button" onClick={(e) => { e.preventDefault(); window.location.href = '/about'; }}>Learn More</a>
           </div>
           <div className="hero-image">
-            <div style={{ width: '100%', height: '300px', backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: '10px', display: 'flex', alignItems: 'center', justify-content: 'center' }}>
+            <div style={{ width: '100%', height: '300px', backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <i className="fas fa-ambulance" style={{ fontSize: '150px', opacity: 0.7 }}></i>
             </div>
           </div>
