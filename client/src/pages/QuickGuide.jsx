@@ -195,7 +195,7 @@ const QuickGuide = () => {
             <a href="/how" onClick={(e) => { e.preventDefault(); navigate('/how'); }} className="cta-button">Learn More</a>
           </div>
           <div className="hero-image">
-            <div style={{ width: '100%', height: '300px', backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: '10px', display: 'flex', align-items: 'center', justify-content: 'center' }}>
+            <div style={{ width: '100%', height: '300px', backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <i className="fas fa-ambulance" style={{ fontSize: '150px', opacity: 0.7 }}></i>
             </div>
           </div>
