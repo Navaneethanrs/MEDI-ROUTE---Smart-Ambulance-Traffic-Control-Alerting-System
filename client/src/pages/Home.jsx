@@ -11,7 +11,7 @@ const Home = () => {
   const [currentTime, setCurrentTime] = useState('0:00');
   const [duration, setDuration] = useState('0:00');
 
-  // Redesigned Carousel slides with actual images
+  // Redesigned Showcase Grid images mapping
   const slides = [
     {
       title: "Emergency Dispatch",
@@ -35,7 +35,7 @@ const Home = () => {
     }
   ];
 
-  // Testimonials autoplay
+  // Testimonials state
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const testimonials = [
     {
@@ -221,20 +221,6 @@ const Home = () => {
                 <div className="gps-pulse-dot"></div>
                 <span>GPS SYNCED</span>
               </div>
-
-              {/* Heartbeat EKG Badge 3 */}
-              <div className="hero-ekg-widget">
-                <div className="ekg-number">74 <span>bpm</span></div>
-                <div className="ekg-line-container">
-                  <svg viewBox="0 0 100 20" style={{ width: '100%', height: '100%' }}>
-                    <path 
-                      className="ekg-line" 
-                      d="M 0 10 L 30 10 L 35 2 L 40 18 L 45 10 L 50 10 L 55 10 L 60 2 L 65 18 L 70 10 L 100 10" 
-                    />
-                  </svg>
-                </div>
-              </div>
-
             </div>
           </div>
         </div>
@@ -307,7 +293,7 @@ const Home = () => {
                   onChange={handleVolumeChange}
                   className="slider"
                   style={{
-                    background: `linear-gradient(to right, var(--neon-cyan) 0%, var(--neon-cyan) ${isMuted ? 0 : volume}%, rgba(255,255,255,0.1) ${isMuted ? 0 : volume}%, rgba(255,255,255,0.1) 100%)`
+                    background: `linear-gradient(to right, var(--primary-blue) 0%, var(--primary-blue) ${isMuted ? 0 : volume}%, rgba(0,0,0,0.1) ${isMuted ? 0 : volume}%, rgba(0,0,0,0.1) 100%)`
                   }}
                 />
               </div>
@@ -466,7 +452,7 @@ const Home = () => {
                   ))}
                 </div>
                 <div className="sim-corridor-status">
-                  <div className={`corridor-glowing-dot ${corridorActive ? 'active' : ''}`} style={{ backgroundColor: corridorActive ? 'var(--neon-green)' : 'var(--neon-red)', boxShadow: corridorActive ? '0 0 10px var(--neon-green)' : '0 0 10px var(--neon-red)' }}></div>
+                  <div className={`corridor-glowing-dot ${corridorActive ? 'active' : ''}`} style={{ backgroundColor: corridorActive ? 'var(--success-green)' : 'var(--emergency-red)', boxShadow: corridorActive ? '0 0 8px var(--success-green)' : '0 0 8px var(--emergency-red)' }}></div>
                   <span>CORRIDOR OVERRIDE: {corridorActive ? "ACTIVE (OPEN PATH)" : "STANDBY (NORMAL TRAFFIC)"}</span>
                 </div>
               </div>
