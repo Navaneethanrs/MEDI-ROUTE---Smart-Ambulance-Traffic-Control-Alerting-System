@@ -11,36 +11,35 @@ const Home = () => {
   const [currentTime, setCurrentTime] = useState('0:00');
   const [duration, setDuration] = useState('0:00');
 
-  // Simple React Carousel state
-  const [activeSlide, setActiveSlide] = useState(0);
+  // Redesigned Carousel slides with actual images
   const slides = [
     {
       title: "Emergency Dispatch",
-      text: "Our system instantly dispatches the nearest available ambulance to emergency locations with real-time traffic optimization.",
-      color: "#1d3557"
+      text: "Instantly dispatches the nearest ambulance to emergency locations with real-time GPS traffic optimization.",
+      image: "/hos dispach.jpg"
     },
     {
       title: "Hospital Coordination",
-      text: "Seamlessly coordinate with hospitals to ensure beds and medical staff are ready upon patient arrival.",
-      color: "#457b9d"
+      text: "Seamlessly coordinates with hospitals to ensure beds and medical staff are prepared before the ambulance arrives.",
+      image: "/hospital.jpg"
     },
     {
       title: "Traffic Management",
-      text: "Smart traffic signal control creates green corridors for ambulances, reducing transit time by up to 40%.",
-      color: "#e63946"
+      text: "Smart traffic signal control creates green corridors for emergency vehicles, reducing transit time by up to 40%.",
+      image: "/img1.jpg"
     },
     {
       title: "Real-time Tracking",
-      text: "Hospitals and emergency services can track ambulance location and ETA in real-time.",
-      color: "#2a9d8f"
+      text: "Hospitals, dispatchers, and paramedics can track the exact ambulance location and ETA live on the map.",
+      image: "/tracking.jpg"
     }
   ];
 
-  // Simple React Testimonials state
+  // Testimonials autoplay
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const testimonials = [
     {
-      quote: "Medi Route has reduced our ambulance response times by 35% and improved patient outcomes significantly. The real-time coordination is a game-changer for emergency medicine.",
+      quote: "MediRoute has reduced our ambulance response times by 35% and improved patient outcomes significantly. The real-time coordination is a game-changer for emergency medicine.",
       author: "Dr. Sarah Johnson",
       role: "Chief of Emergency Medicine, City General Hospital",
       icon: "fa-user-md"
@@ -52,7 +51,7 @@ const Home = () => {
       icon: "fa-ambulance"
     },
     {
-      quote: "Implementing Medi Route has transformed our emergency response capabilities. The bed booking system ensures our patients get immediate care upon arrival.",
+      quote: "Implementing MediRoute has transformed our emergency response capabilities. The bed booking system ensures our patients get immediate care upon arrival.",
       author: "Jennifer Lee",
       role: "Hospital Administrator, Regional Medical Center",
       icon: "fa-hospital"
@@ -97,6 +96,7 @@ const Home = () => {
   }, [testimonials.length]);
 
   const formatTime = (seconds) => {
+    if (isNaN(seconds)) return '0:00';
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.floor(seconds % 60);
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
@@ -155,20 +155,55 @@ const Home = () => {
   };
 
   return (
-    <div>
+    <div className="home-page-wrapper">
       <Navbar />
 
       {/* Hero Section */}
-      <section className="hero" style={{ marginTop: '70px' }}>
+      <section className="hero">
         <div className="container hero-content">
-          <div className="hero-text">
+          <div className="hero-text animate-fade-in-left">
+            <span className="hero-tagline">🚑 Smart Emergency Corridor</span>
             <h2>Revolutionizing Emergency Medical Response</h2>
-            <p>Medi Route is an IoT-based Smart Ambulance Traffic Control System designed to reduce ambulance delays, provide real-time hospital connectivity, and save lives through efficient coordination.</p>
-            <a href="/about" className="cta-button" onClick={(e) => { e.preventDefault(); window.location.href = '/about'; }}>Learn More</a>
+            <p>MediRoute is an intelligent, IoT-driven traffic control and hospital coordination network. We minimize transit delays, establish green corridors, and link ambulances directly with trauma departments to save lives when seconds count.</p>
+            <div className="hero-cta-buttons">
+              <a href="/about" className="cta-button" onClick={(e) => { e.preventDefault(); window.location.href = '/about'; }}>Learn More <i className="fas fa-arrow-right"></i></a>
+              <a href="/quick" className="secondary-button-hero" onClick={(e) => { e.preventDefault(); window.location.href = '/quick'; }}>Quick Access</a>
+            </div>
           </div>
-          <div className="hero-image">
-            <div style={{ width: '100%', height: '300px', backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <i className="fas fa-ambulance" style={{ fontSize: '150px', opacity: 0.7 }}></i>
+          <div className="hero-image animate-fade-in-right">
+            <div className="hero-image-container">
+              <img src="/img1.jpg" alt="MediRoute Smart Traffic Corridor" className="hero-img-file" />
+              <div className="hero-glass-badge">
+                <i className="fas fa-heartbeat"></i>
+                <div>
+                  <h4>Live Sync</h4>
+                  <p>EMS & Hospitals</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="stats">
+        <div className="container">
+          <div className="stats-grid">
+            <div className="stat-item">
+              <h3>40%</h3>
+              <p>Reduction in Response Time</p>
+            </div>
+            <div className="stat-item">
+              <h3>500+</h3>
+              <p>Lives Saved Monthly</p>
+            </div>
+            <div className="stat-item">
+              <h3>85%</h3>
+              <p>Faster Hospital Arrival</p>
+            </div>
+            <div className="stat-item">
+              <h3>30+</h3>
+              <p>Cities Using MediRoute</p>
             </div>
           </div>
         </div>
@@ -178,8 +213,8 @@ const Home = () => {
       <section className="video-section">
         <div className="container">
           <div className="section-title">
-            <h2>See Medi Route in Action</h2>
-            <p>Watch how our smart ambulance system revolutionizes emergency medical response and saves precious lives.</p>
+            <h2>See MediRoute in Action</h2>
+            <p>Watch how our smart traffic alerts and telemetry synchronization create a seamless corridor for EMS vehicles.</p>
           </div>
           <div className="video-container">
             <div className="video-wrapper">
@@ -195,7 +230,6 @@ const Home = () => {
               <div 
                 className={`video-overlay ${isPlaying ? 'hidden' : ''}`} 
                 onClick={togglePlayPause}
-                style={{ display: isPlaying ? 'none' : 'flex' }}
               >
                 <div className="play-button">
                   <i className="fas fa-play"></i>
@@ -237,8 +271,8 @@ const Home = () => {
       <section className="features">
         <div className="container">
           <div className="section-title">
-            <h2>Key Features</h2>
-            <p>Our comprehensive system connects ambulances, hospitals, and traffic infrastructure to create a seamless emergency response network.</p>
+            <h2>Key Operations & Features</h2>
+            <p>Our comprehensive grid integrates smart signaling, patient telemetry, and hospital coordination into a single unified network.</p>
           </div>
           <div className="features-grid">
             <div className="feature-card">
@@ -246,103 +280,105 @@ const Home = () => {
                 <i className="fas fa-hospital"></i>
               </div>
               <h3>Nearby Hospital Detection</h3>
-              <p>Ambulance drivers can instantly view nearby hospitals based on GPS location for the fastest route.</p>
+              <p>Locates the closest medical centers instantly based on GPS telemetry, providing optimal routing for drivers.</p>
             </div>
             <div className="feature-card">
               <div className="feature-icon">
                 <i className="fas fa-bed"></i>
               </div>
-              <h3>Bed Booking System</h3>
-              <p>Reserve patient beds in advance based on real-time hospital availability and requirements.</p>
+              <h3>Emergency Bed Booking</h3>
+              <p>Enables EMS to book patient beds ahead of arrival, matching patients with appropriate specialized rooms.</p>
             </div>
             <div className="feature-card">
               <div className="feature-icon">
                 <i className="fas fa-file-medical"></i>
               </div>
-              <h3>Medical Requirement Reporting</h3>
-              <p>Send patient details and medical needs to hospitals before arrival for better preparation.</p>
+              <h3>Telemetry Transmission</h3>
+              <p>Sends real-time critical vitals (heart rate, SpO2, blood pressure) to trauma teams prior to arrival.</p>
             </div>
             <div className="feature-card">
               <div className="feature-icon">
                 <i className="fas fa-map-marker-alt"></i>
               </div>
-              <h3>Ambulance Tracking</h3>
-              <p>Hospitals can track ambulances in real-time to prepare for patient arrival.</p>
+              <h3>Live Paramedic Tracking</h3>
+              <p>Allows hospitals to monitor incoming emergency vehicles on an interactive map with updated ETAs.</p>
             </div>
             <div className="feature-card">
               <div className="feature-icon">
                 <i className="fas fa-traffic-light"></i>
               </div>
-              <h3>Traffic Signal Control</h3>
-              <p>Automatically switch traffic signals to green when ambulances approach intersections.</p>
+              <h3>IoT Traffic Preemption</h3>
+              <p>Automatically triggers green lights at upcoming intersections, cutting critical travel times by 40%.</p>
             </div>
             <div className="feature-card">
               <div className="feature-icon">
                 <i className="fas fa-heartbeat"></i>
               </div>
-              <h3>Life-Saving Coordination</h3>
-              <p>Efficient coordination between drivers, hospitals, and traffic systems to save lives.</p>
+              <h3>Life-Saving Synergy</h3>
+              <p>Fosters immediate communication between first responders, traffic control, and emergency departments.</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Carousel Section */}
+      {/* Grid Showcase of MediRoute in Action */}
       <section className="carousel-section">
         <div className="container">
           <div className="section-title">
-            <h2>Medi Route in Action</h2>
-            <p>See how our system is transforming emergency medical services across different scenarios.</p>
+            <h2>MediRoute Ecosystem</h2>
+            <p>Explore the components that power our real-time smart medical corridor.</p>
           </div>
-          <div className="carousel-container">
-            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '20px' }}>
-              {slides.map((slide, index) => (
-                <div key={index} className="item" style={{ maxWidth: '300px', flex: '1 1 300px' }}>
-                  <div className="carousel-image" style={{ backgroundColor: slide.color }}></div>
-                  <div className="carousel-content">
-                    <h3>{slide.title}</h3>
-                    <p>{slide.text}</p>
-                    <a href="#" className="cta-button" onClick={(e) => e.preventDefault()}>Learn More</a>
+          <div className="showcase-grid">
+            {slides.map((slide, index) => (
+              <div key={index} className="showcase-card">
+                <div className="showcase-image-wrapper">
+                  <img src={slide.image} alt={slide.title} className="showcase-img" />
+                  <div className="showcase-overlay">
+                    <span className="showcase-tag">Active Mode</span>
                   </div>
                 </div>
-              ))}
-            </div>
+                <div className="showcase-content">
+                  <h3>{slide.title}</h3>
+                  <p>{slide.text}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* How It Works */}
+      {/* How It Works Timeline */}
       <section className="how-it-works">
         <div className="container">
           <div className="section-title">
-            <h2>How Medi Route Works</h2>
-            <p>Our system creates a seamless connection between emergency vehicles, hospitals, and traffic infrastructure.</p>
+            <h2>How MediRoute Works</h2>
+            <p>From dispatch to ER check-in, see the automated stages of our intelligent emergency system.</p>
           </div>
-          <div className="steps">
-            <div className="step">
-              <div className="step-number">1</div>
-              <h3>Emergency Alert</h3>
-              <p>Ambulance receives emergency call and is dispatched to location.</p>
+          <div className="steps-timeline">
+            <div className="step-timeline-item">
+              <div className="step-circle">01</div>
+              <h4>Emergency Alert</h4>
+              <p>Ambulance dispatches and driver logs into the system with active routing.</p>
             </div>
-            <div className="step">
-              <div className="step-number">2</div>
-              <h3>Hospital Selection</h3>
-              <p>System identifies nearby hospitals with required facilities.</p>
+            <div className="step-timeline-item">
+              <div className="step-circle">02</div>
+              <h4>Hospital Match</h4>
+              <p>System displays nearest hospitals with relevant trauma facilities.</p>
             </div>
-            <div className="step">
-              <div className="step-number">3</div>
-              <h3>Bed & Resource Booking</h3>
-              <p>Reserves bed and notifies hospital of patient needs.</p>
+            <div className="step-timeline-item">
+              <div className="step-circle">03</div>
+              <h4>Pre-Admittance Prep</h4>
+              <p>Paramedic transmits vitals; ER reviews data and approves the bed booking.</p>
             </div>
-            <div className="step">
-              <div className="step-number">4</div>
-              <h3>Smart Routing</h3>
-              <p>Calculates fastest route considering traffic conditions.</p>
+            <div className="step-timeline-item">
+              <div className="step-circle">04</div>
+              <h4>Green Light Corridors</h4>
+              <p>IoT modules communicate with traffic signals to clear intersections on approach.</p>
             </div>
-            <div className="step">
-              <div className="step-number">5</div>
-              <h3>Traffic Control</h3>
-              <p>Signals turn green as ambulance approaches intersections.</p>
+            <div className="step-timeline-item">
+              <div className="step-circle">05</div>
+              <h4>Instant Reception</h4>
+              <p>Ambulance arrives; trauma team is prepped and takes immediate action.</p>
             </div>
           </div>
         </div>
@@ -352,74 +388,37 @@ const Home = () => {
       <section className="testimonials">
         <div className="container">
           <div className="section-title">
-            <h2>What Our Partners Say</h2>
-            <p>Hear from hospitals and emergency services using Medi Route to save lives.</p>
+            <h2>Trusted by First Responders & Providers</h2>
+            <p>Hear from leading doctors, dispatchers, and administrators who use our smart coordination grid.</p>
           </div>
-          <div className="testimonial-carousel" style={{ position: 'relative', overflow: 'hidden', minHeight: '300px' }}>
+          <div className="testimonial-slider-container">
             {testimonials.map((t, idx) => (
               <div 
                 key={idx} 
-                className="item" 
-                style={{ 
-                  display: idx === activeTestimonial ? 'block' : 'none',
-                  animation: 'fadeIn 0.5s ease-in-out',
-                  backgroundColor: 'rgba(255,255,255,0.1)',
-                  padding: '40px',
-                  borderRadius: '20px',
-                  border: '1px solid rgba(255,255,255,0.2)'
-                }}
+                className={`testimonial-card-item ${idx === activeTestimonial ? 'active' : ''}`}
+                style={{ display: idx === activeTestimonial ? 'block' : 'none' }}
               >
-                <div className="testimonial-content">
-                  "{t.quote}"
-                </div>
-                <div className="testimonial-author">
-                  <div className="author-avatar">
+                <div className="quote-mark">“</div>
+                <p className="testimonial-text">{t.quote}</p>
+                <div className="author-meta">
+                  <div className="author-icon">
                     <i className={`fas ${t.icon}`}></i>
                   </div>
-                  <div className="author-info">
+                  <div>
                     <h4>{t.author}</h4>
                     <p>{t.role}</p>
                   </div>
                 </div>
               </div>
             ))}
-            <div className="owl-dots">
+            <div className="testimonial-dots">
               {testimonials.map((_, idx) => (
                 <button 
                   key={idx} 
-                  className={`owl-dot ${idx === activeTestimonial ? 'active' : ''}`}
+                  className={`test-dot ${idx === activeTestimonial ? 'active' : ''}`}
                   onClick={() => setActiveTestimonial(idx)}
-                  style={{ border: 'none', cursor: 'pointer' }}
                 />
               ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="stats">
-        <div className="container">
-          <div className="section-title">
-            <h2>Impactful Results</h2>
-            <p>Medi Route is making a difference in emergency medical response times.</p>
-          </div>
-          <div className="stats-grid">
-            <div className="stat-item">
-              <h3>40%</h3>
-              <p>Reduction in Response Time</p>
-            </div>
-            <div className="stat-item">
-              <h3>500+</h3>
-              <p>Lives Saved Monthly</p>
-            </div>
-            <div className="stat-item">
-              <h3>85%</h3>
-              <p>Faster Hospital Arrival</p>
-            </div>
-            <div className="stat-item">
-              <h3>30+</h3>
-              <p>Cities Using Medi Route</p>
             </div>
           </div>
         </div>
@@ -429,27 +428,33 @@ const Home = () => {
       <section className="partners">
         <div className="container">
           <div className="section-title">
-            <h2>Our Hospital Partners</h2>
-            <p>Trusted by leading healthcare institutions across the country.</p>
+            <h2>Our Integrated Networks</h2>
+            <p>Fully certified and linked with regional clinical directories and EMS dispatch databases.</p>
           </div>
           <div className="partners-grid">
             <div className="partner-logo">
-              <i className="fas fa-hospital"></i>
+              <i className="fas fa-hospital-alt"></i>
+              <span>City Health</span>
             </div>
             <div className="partner-logo">
               <i className="fas fa-clinic-medical"></i>
+              <span>Metro EMS</span>
             </div>
             <div className="partner-logo">
               <i className="fas fa-heartbeat"></i>
+              <span>LifeGuard</span>
             </div>
             <div className="partner-logo">
               <i className="fas fa-stethoscope"></i>
+              <span>Apex Health</span>
             </div>
             <div className="partner-logo">
               <i className="fas fa-user-md"></i>
+              <span>Red Cross Care</span>
             </div>
             <div className="partner-logo">
               <i className="fas fa-procedures"></i>
+              <span>ER Response Co.</span>
             </div>
           </div>
         </div>
@@ -457,9 +462,9 @@ const Home = () => {
 
       {/* CTA Section */}
       <section className="cta-section">
-        <div className="container">
+        <div className="container cta-box-gradient">
           <h2>Ready to Transform Emergency Response?</h2>
-          <p>Join the growing network of cities and hospitals using Medi Route to save lives through efficient emergency medical coordination.</p>
+          <p>Join the growing network of smart cities, hospital complexes, and EMS teams using MediRoute to optimize emergency paths and save lives.</p>
           <div className="cta-buttons">
             <a href="/quick" className="cta-button" onClick={(e) => { e.preventDefault(); window.location.href = '/quick'; }}>Quick Access</a>
             <a href="/about" className="secondary-button" onClick={(e) => { e.preventDefault(); window.location.href = '/about'; }}>About Us</a>
@@ -469,10 +474,15 @@ const Home = () => {
 
       <Footer />
 
-      {/* Emergency Alert */}
-      <div className="emergency-alert" onClick={handleEmergencyClick}>
-        <i className="fas fa-phone-alt"></i>
-        <span>Emergency Hotline: 108</span>
+      {/* Pulsing Floating Emergency Hotline Badge */}
+      <div className="emergency-float-badge" onClick={handleEmergencyClick}>
+        <div className="badge-icon-wrapper">
+          <i className="fas fa-phone-alt"></i>
+        </div>
+        <div className="badge-details">
+          <span>EMERGENCY HOTLINE</span>
+          <h4>CALL 108</h4>
+        </div>
       </div>
     </div>
   );
