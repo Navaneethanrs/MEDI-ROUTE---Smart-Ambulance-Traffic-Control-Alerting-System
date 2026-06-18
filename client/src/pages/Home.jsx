@@ -226,30 +226,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="stats">
-        <div className="container">
-          <div className="stats-grid">
-            <div className="stat-item">
-              <h3>40%</h3>
-              <p>Reduction in Response Time</p>
-            </div>
-            <div className="stat-item">
-              <h3>500+</h3>
-              <p>Lives Saved Monthly</p>
-            </div>
-            <div className="stat-item">
-              <h3>85%</h3>
-              <p>Faster Hospital Arrival</p>
-            </div>
-            <div className="stat-item">
-              <h3>30+</h3>
-              <p>Cities Using MediRoute</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Video Section */}
       <section className="video-section">
         <div className="container">
@@ -452,7 +428,7 @@ const Home = () => {
                   ))}
                 </div>
                 <div className="sim-corridor-status">
-                  <div className={`corridor-glowing-dot ${corridorActive ? 'active' : ''}`} style={{ backgroundColor: corridorActive ? 'var(--success-green)' : 'var(--emergency-red)', boxShadow: corridorActive ? '0 0 8px var(--success-green)' : '0 0 8px var(--emergency-red)' }}></div>
+                  <div className={`corridor-glowing-dot ${corridorActive ? 'active' : ''}`} style={{ backgroundColor: corridorActive ? 'var(--neon-green)' : 'var(--neon-red)', boxShadow: corridorActive ? '0 0 8px var(--neon-green)' : '0 0 8px var(--neon-red)' }}></div>
                   <span>CORRIDOR OVERRIDE: {corridorActive ? "ACTIVE (OPEN PATH)" : "STANDBY (NORMAL TRAFFIC)"}</span>
                 </div>
               </div>

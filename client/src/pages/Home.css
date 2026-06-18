@@ -194,7 +194,7 @@ nav a:hover {
 /* =====================================================
    🚀 HERO SECTION (High-contrast dynamic layout)
    ===================================================== */
-.hero {
+.home-page-wrapper .hero {
     min-height: 98vh;
     display: flex;
     align-items: center;
@@ -210,14 +210,14 @@ nav a:hover {
     border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 
-.hero-content {
+.home-page-wrapper .hero-content {
     display: grid;
     grid-template-columns: 1.15fr 0.85fr;
     gap: 60px;
     align-items: center;
 }
 
-.hero-tagline {
+.home-page-wrapper .hero-tagline {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -235,38 +235,38 @@ nav a:hover {
     box-shadow: 0 0 15px rgba(255, 42, 84, 0.1);
 }
 
-.hero-text h2 {
+.home-page-wrapper .hero-text h2 {
     font-family: var(--font-heading);
     font-size: 58px;
     line-height: 1.15;
     font-weight: 900;
-    color: var(--text-primary);
+    color: var(--text-primary) !important;
     margin-bottom: 20px;
     letter-spacing: -1.5px;
 }
 
-.hero-text h2 span {
-    background: linear-gradient(135deg, var(--neon-cyan) 0%, #0077b6 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 40px rgba(0, 242, 254, 0.15);
+.home-page-wrapper .hero-text h2 span {
+    background: linear-gradient(135deg, var(--neon-cyan) 0%, #0077b6 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    text-shadow: 0 0 40px rgba(0, 242, 254, 0.15) !important;
 }
 
-.hero-text p {
+.home-page-wrapper .hero-text p {
     font-size: 19px;
-    color: var(--text-secondary);
+    color: var(--text-secondary) !important;
     margin-bottom: 40px;
     font-weight: 400;
     line-height: 1.65;
 }
 
-.hero-cta-buttons {
+.home-page-wrapper .hero-cta-buttons {
     display: flex;
     gap: 16px;
     flex-wrap: wrap;
 }
 
-.cta-button {
+.home-page-wrapper .cta-button {
     background: linear-gradient(135deg, var(--neon-red) 0%, #bd002c 100%);
     color: white !important;
     font-family: var(--font-heading);
@@ -284,12 +284,12 @@ nav a:hover {
     cursor: pointer;
 }
 
-.cta-button:hover {
+.home-page-wrapper .cta-button:hover {
     transform: translateY(-3px);
     box-shadow: 0 12px 30px rgba(255, 42, 84, 0.6);
 }
 
-.secondary-button-hero {
+.home-page-wrapper .secondary-button-hero {
     background: rgba(255, 255, 255, 0.02);
     color: var(--text-primary) !important;
     font-family: var(--font-heading);
@@ -311,13 +311,13 @@ nav a:hover {
 }
 
 /* Hero Telemetry Display */
-.hero-image {
+.home-page-wrapper .hero-image {
     position: relative;
     display: flex;
     justify-content: center;
 }
 
-.hero-image-container {
+.home-page-wrapper .hero-image-container {
     position: relative;
     width: 100%;
     max-width: 440px;
@@ -328,7 +328,7 @@ nav a:hover {
     box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), 0 0 30px rgba(0, 242, 254, 0.08);
 }
 
-.hero-img-file {
+.home-page-wrapper .hero-img-file {
     width: 100%;
     height: 380px;
     object-fit: cover;
@@ -338,7 +338,7 @@ nav a:hover {
 }
 
 /* Glass Floating Badges */
-.hero-glass-badge {
+.home-page-wrapper .hero-glass-badge {
     position: absolute;
     bottom: -20px;
     left: -20px;
@@ -354,7 +354,7 @@ nav a:hover {
     animation: float 4s ease-in-out infinite;
 }
 
-.hero-glass-badge i {
+.home-page-wrapper .hero-glass-badge i {
     font-size: 20px;
     color: var(--neon-red);
     background: rgba(255, 42, 84, 0.1);
@@ -367,20 +367,20 @@ nav a:hover {
     box-shadow: 0 0 15px rgba(255, 42, 84, 0.15);
 }
 
-.hero-glass-badge h4 {
+.home-page-wrapper .hero-glass-badge h4 {
     font-family: var(--font-heading);
     font-size: 14px;
     font-weight: 700;
     color: var(--text-primary);
 }
 
-.hero-glass-badge p {
+.home-page-wrapper .hero-glass-badge p {
     font-size: 11px;
     color: var(--text-muted);
     margin: 0;
 }
 
-.hero-gps-sync-badge {
+.home-page-wrapper .hero-gps-sync-badge {
     position: absolute;
     top: -15px;
     right: -15px;
@@ -396,7 +396,7 @@ nav a:hover {
     animation: float 4s ease-in-out infinite reverse;
 }
 
-.gps-pulse-dot {
+.home-page-wrapper .gps-pulse-dot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
@@ -405,7 +405,7 @@ nav a:hover {
     animation: pulseDot 2s infinite;
 }
 
-.hero-gps-sync-badge span {
+.home-page-wrapper .hero-gps-sync-badge span {
     font-family: var(--font-heading);
     font-size: 12px;
     font-weight: 700;
