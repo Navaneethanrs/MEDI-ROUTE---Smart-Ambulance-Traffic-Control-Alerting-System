@@ -1,5 +1,5 @@
 @echo off
 echo Starting MediRoute Server...
-cd /d "d:\DT LAB PROJECT"
+cd /d "%~dp0"
 node server.js
 pause
