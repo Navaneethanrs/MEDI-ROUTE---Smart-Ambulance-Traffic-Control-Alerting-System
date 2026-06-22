@@ -128,7 +128,7 @@ const About = () => {
                 </div>
               </div>
               <h3>Navaneethan Sankar</h3>
-              <p className="team-role">Co-Founder & IoT Solutions Architect</p>
+              <p className="team-role">Founder & MERN Stack Developer</p>
               <p className="team-bio">Specializes in smart traffic controllers, GPS routing networks, and embedding sensors in ambulances for real-time telemetry.</p>
               <div className="team-socials">
                 <a href="https://www.linkedin.com/in/navaneethan-sankar-743751367/" target="_blank" rel="noopener noreferrer"><i className="fab fa-linkedin-in"></i></a>
@@ -143,7 +143,7 @@ const About = () => {
                 </div>
               </div>
               <h3>Niranjan Gobinathan</h3>
-              <p className="team-role">Co-Founder & Full-Stack Engineer</p>
+              <p className="team-role">Founder & MERN Stack Developer</p>
               <p className="team-bio">Handles real-time WebSocket communication channels, cloud dispatch APIs, and intelligent data dashboard interfaces.</p>
               <div className="team-socials">
                 <a href="https://www.linkedin.com/in/niranjan-gobinathan-0b67b4321/" target="_blank" rel="noopener noreferrer"><i className="fab fa-linkedin-in"></i></a>
