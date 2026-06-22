@@ -358,17 +358,7 @@ const Contact = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="cta-section">
-        <div className="container">
-          <h2>Ready to Transform Emergency Response?</h2>
-          <p>Join cities and hospitals across the country that are already using Medi Route to save lives and improve emergency medical services.</p>
-          <div className="cta-buttons">
-            <a href="#" className="cta-button" onClick={(e) => { e.preventDefault(); alert("Demo request feature is coming soon!"); }}>Request a Demo</a>
-            <a href="tel:+15551234567" className="secondary-button">Call Us Now</a>
-          </div>
-        </div>
-      </section>
+
 
       <Footer />
 
