@@ -17,7 +17,6 @@ const HowItWorks = () => {
           <nav>
             <ul>
               <li><a href="/" onClick={(e) => { e.preventDefault(); navigate('/'); }}>Home</a></li>
-              <li><a href="/quick" onClick={(e) => { e.preventDefault(); navigate('/quick'); }}>Quick Access</a></li>
               <li><a href="/how" onClick={(e) => e.preventDefault()} style={{ color: 'var(--primary)' }}>How It Works</a></li>
               <li><a href="/about" onClick={(e) => { e.preventDefault(); navigate('/about'); }}>About Us</a></li>
               <li><a href="/contact" onClick={(e) => { e.preventDefault(); navigate('/contact'); }}>Contact</a></li>
@@ -282,7 +281,6 @@ const HowItWorks = () => {
               <h3>Quick Links</h3>
               <ul>
                 <li><a href="/" onClick={(e) => { e.preventDefault(); navigate('/'); }}>Home</a></li>
-                <li><a href="/quick" onClick={(e) => { e.preventDefault(); navigate('/quick'); }}>Quick Access</a></li>
                 <li><a href="/how" onClick={(e) => { e.preventDefault(); navigate('/how'); }}>How It Works</a></li>
                 <li><a href="/about" onClick={(e) => { e.preventDefault(); navigate('/about'); }}>About Us</a></li>
                 <li><a href="/contact" onClick={(e) => { e.preventDefault(); navigate('/contact'); }}>Contact</a></li>
