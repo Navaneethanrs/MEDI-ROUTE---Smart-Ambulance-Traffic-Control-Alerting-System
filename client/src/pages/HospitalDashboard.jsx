@@ -1,19 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { io } from 'socket.io-client';
 import api from '../api';
 import './HospitalDashboard.css';
 
 const HospitalDashboard = () => {
   const navigate = useNavigate();
 
-  // Resource capacity state
+  // Auth and profile states
+  const [hospitalName, setHospitalName] = useState("");
+  const [dbId, setDbId] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(new Date());
+
+  // Resource capacity state (General Beds, ICU Beds, Ventilators, Emergency Doctors)
   const [capacity, setCapacity] = useState({
-    icuBeds: 8,
-    ventilators: 5,
-    erBeds: 12
+    generalBeds: 0,
+    icuBeds: 0,
+    ventilators: 0,
+    emergencyDoctors: 0
   });
 
-  // Pending patients from DB
+  // Pending patients from DB / Socket
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorText, setErrorText] = useState('');
@@ -40,12 +48,65 @@ const HospitalDashboard = () => {
     message: ''
   });
 
-  // Fetch pending patients
+  const socketRef = useRef(null);
+
+  // Check authentication
+  useEffect(() => {
+    const token = localStorage.getItem('hospitalToken');
+    if (!token) {
+      navigate('/hospital/auth');
+    } else {
+      loadHospitalProfile();
+    }
+  }, [navigate]);
+
+  const loadHospitalProfile = async () => {
+    const token = localStorage.getItem('hospitalToken');
+    if (!token) return;
+
+    try {
+      const response = await api.get('/hospital/profile', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.status === 200) {
+        const h = response.data;
+        setHospitalName(h.name);
+        setDbId(h._id);
+        setCapacity({
+          generalBeds: h.generalBeds || 0,
+          icuBeds: h.icuBeds || 0,
+          ventilators: h.ventilators || 0,
+          emergencyDoctors: h.emergencyDoctors || 0
+        });
+        if (h.lastUpdatedAt) setLastUpdated(new Date(h.lastUpdatedAt));
+      }
+    } catch (err) {
+      console.error("Error loading hospital profile:", err);
+      if (err.response?.status === 403 || err.response?.status === 401) {
+        handleLogout();
+      }
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('hospitalToken');
+    localStorage.removeItem('hospitalData');
+    navigate('/hospital/auth');
+  };
+
+  // Fetch pending patients from DB
   const loadIncomingPatients = async () => {
+    if (!hospitalName) return;
     try {
       const response = await api.get('/patients/pending');
       if (response.status === 200) {
-        setPatients(response.data);
+        // Filter patients for this hospital
+        const filtered = response.data.filter(p => 
+          p.hospitalId === dbId || 
+          p.selectedHospital === hospitalName || 
+          (p.selectedHospital && hospitalName && p.selectedHospital.toLowerCase() === hospitalName.toLowerCase())
+        );
+        setPatients(filtered);
         setErrorText('');
       }
     } catch (error) {
@@ -56,32 +117,93 @@ const HospitalDashboard = () => {
     }
   };
 
+  // Fetch patients when profile loaded
   useEffect(() => {
-    loadIncomingPatients();
-    // Poll every 3 seconds
-    const interval = setInterval(loadIncomingPatients, 3000);
-    return () => clearInterval(interval);
-  }, []);
+    if (hospitalName) {
+      loadIncomingPatients();
+    }
+  }, [hospitalName]);
 
-  // Simulate real-time updates for capacity
+  // Socket.IO real-time updates setup
   useEffect(() => {
-    const capacitySim = setInterval(() => {
-      if (Math.random() > 0.7) {
-        setCapacity(prev => ({
-          ...prev,
-          icuBeds: Math.max(0, prev.icuBeds + (Math.random() > 0.5 ? 1 : -1))
-        }));
-      }
-      if (Math.random() > 0.7) {
-        setCapacity(prev => ({
-          ...prev,
-          ventilators: Math.max(0, prev.ventilators + (Math.random() > 0.5 ? 1 : -1))
-        }));
-      }
-    }, 45000);
+    if (!dbId || !hospitalName) return;
 
-    return () => clearInterval(capacitySim);
-  }, []);
+    // Connect socket
+    const socket = io('/', { path: '/socket.io' });
+    socketRef.current = socket;
+
+    // Join hospital room
+    socket.emit('join_room', { role: 'hospital', id: dbId });
+
+    // Listen for live incoming request
+    socket.on('incoming_patient_request', (patientData) => {
+      console.log('Real-time request received via socket:', patientData);
+      
+      // Play alert sound if possible
+      try {
+        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-84.wav');
+        audio.volume = 0.5;
+        audio.play();
+      } catch (e) {
+        console.log('Audio playback blocked');
+      }
+
+      // Add to patient state lists
+      setPatients(prev => [patientData, ...prev]);
+
+      setSuccessNotification({
+        show: true,
+        title: '🔴 URGENT EMERGENCY ALERT!',
+        message: `Ambulance approaching for patient ${patientData.patientName} (${patientData.medicalCondition}). Please review immediately.`
+      });
+      setTimeout(() => setSuccessNotification(prev => ({ ...prev, show: false })), 6000);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [dbId, hospitalName]);
+
+  // Handle capacity increment/decrement locally
+  const handleCapacityChange = (field, amount) => {
+    setCapacity(prev => ({
+      ...prev,
+      [field]: Math.max(0, prev[field] + amount)
+    }));
+  };
+
+  // Save modified capacities to MongoDB and emit live updates
+  const saveCapacityToDB = async () => {
+    const token = localStorage.getItem('hospitalToken');
+    if (!token) return;
+    
+    setSaving(true);
+    try {
+      const res = await api.put(`/hospital/profile`, {
+        icuBeds: capacity.icuBeds,
+        ventilators: capacity.ventilators,
+        generalBeds: capacity.generalBeds,
+        emergencyDoctors: capacity.emergencyDoctors
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (res.status === 200) {
+        setLastUpdated(new Date());
+        setSuccessNotification({
+          show: true,
+          title: "Capacity Synchronized",
+          message: `The live resources for ${hospitalName} have been broadcast to all active ambulances.`
+        });
+        setTimeout(() => setSuccessNotification(prev => ({ ...prev, show: false })), 4000);
+      }
+    } catch (err) {
+      console.error("Error saving capacity:", err);
+      alert("Failed to save capacity.");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   // Helper: calculate time ago
   const getTimeAgo = (dateStr) => {
@@ -135,7 +257,6 @@ const HospitalDashboard = () => {
       }
     } catch (error) {
       console.error('Error fetching patient details:', error);
-      // Fallback from existing state list
       const fallback = patients.find(p => p._id === patientId || p.id === patientId);
       if (fallback) {
         setSelectedPatient(fallback);
@@ -148,85 +269,70 @@ const HospitalDashboard = () => {
     }
   };
 
-  // Admit patient
-  const handleAdmitPatient = async (patientId) => {
-    try {
-      const response = await api.post(`/patients/${patientId}/accept`);
-      if (response.status === 200) {
-        const patientName = response.data.patientName || 'Patient';
-        
-        // Decrement capacity
-        const updatedNeeds = response.data.medicalNeeds || [];
-        setCapacity(prev => ({
-          ...prev,
-          icuBeds: updatedNeeds.includes('ICU Bed') ? Math.max(0, prev.icuBeds - 1) : prev.icuBeds,
-          ventilators: updatedNeeds.includes('Ventilator') ? Math.max(0, prev.ventilators - 1) : prev.ventilators
-        }));
-
-        setSuccessNotification({
-          show: true,
-          title: 'Patient Admitted Successfully!',
-          message: `${patientName} has been admitted. The ambulance driver has been notified and medical teams are preparing for arrival.`
-        });
-        
-        loadIncomingPatients();
-      }
-    } catch (error) {
-      console.error('Error admitting patient:', error);
-      alert('Failed to admit patient.');
+  // Admit patient (emit socket)
+  const handleAdmitPatient = (patientId) => {
+    if (socketRef.current) {
+      socketRef.current.emit('respond_patient_request', {
+        patientId,
+        status: 'accepted',
+        hospitalName
+      });
+      
+      // Update state locally immediately
+      setPatients(prev => prev.filter(p => p._id !== patientId && p.id !== patientId));
+      
+      setSuccessNotification({
+        show: true,
+        title: 'Patient Admitted Successfully!',
+        message: `The driver has been notified. The ICU beds/ventilators will sync dynamically.`
+      });
+      setTimeout(() => setSuccessNotification(prev => ({ ...prev, show: false })), 4000);
+      
+      // Reload profile after database updates
+      setTimeout(() => loadHospitalProfile(), 500);
     }
   };
 
-  // Decline patient from card
-  const handleDeclinePatientSubmit = async (patientId, reason) => {
+  // Decline patient from card (emit socket)
+  const handleDeclinePatientSubmit = (patientId, reason) => {
     if (!reason.trim()) {
-      alert('Please provide a reason for declining admission.');
+      alert('Please enter a decline reason.');
       return;
     }
-    try {
-      const response = await api.post(`/patients/${patientId}/decline`, { reason });
-      if (response.status === 200) {
-        const patientName = response.data.patientName || 'Patient';
-        setDeclineNotification({
-          show: true,
-          title: 'Admission Declined',
-          message: `The admission request for ${patientName} has been declined. Reason: ${reason}. The driver has been notified.`
-        });
-        setDeclineReasonCardId(null);
-        setDeclineReasonText('');
-        loadIncomingPatients();
-      }
-    } catch (error) {
-      console.error('Error declining patient:', error);
-      alert('Failed to decline patient.');
+    if (socketRef.current) {
+      socketRef.current.emit('respond_patient_request', {
+        patientId,
+        status: 'declined',
+        reason,
+        hospitalName
+      });
+      
+      setPatients(prev => prev.filter(p => p._id !== patientId && p.id !== patientId));
+      setDeclineReasonCardId(null);
+      setDeclineReasonText('');
+      
+      setDeclineNotification({
+        show: true,
+        title: 'Admission Request Declined',
+        message: `Decline response with reason "${reason}" has been dispatched to the driver.`
+      });
+      setTimeout(() => setDeclineNotification(prev => ({ ...prev, show: false })), 4000);
+      
+      setTimeout(() => loadHospitalProfile(), 500);
     }
   };
 
   // Decline patient from modal
-  const handleModalDeclineSubmit = async () => {
+  const handleModalDeclineSubmit = () => {
     if (!modalReasonText.trim()) {
-      alert('Please provide a reason for declining admission.');
+      alert('Please enter a decline reason.');
       return;
     }
     if (selectedPatient) {
       const patientId = selectedPatient._id || selectedPatient.id;
-      try {
-        const response = await api.post(`/patients/${patientId}/decline`, { reason: modalReasonText });
-        if (response.status === 200) {
-          const patientName = response.data.patientName || 'Patient';
-          setDeclineNotification({
-            show: true,
-            title: 'Admission Declined',
-            message: `The admission request for ${patientName} has been declined. Reason: ${modalReasonText}. The driver has been notified.`
-          });
-          setShowModal(false);
-          setSelectedPatient(null);
-          loadIncomingPatients();
-        }
-      } catch (error) {
-        console.error('Error declining patient from modal:', error);
-        alert('Failed to decline patient.');
-      }
+      handleDeclinePatientSubmit(patientId, modalReasonText);
+      setShowModal(false);
+      setSelectedPatient(null);
     }
   };
 
@@ -243,13 +349,14 @@ const HospitalDashboard = () => {
             <ul>
               <li><a href="/" onClick={(e) => { e.preventDefault(); navigate('/'); }}><i className="fas fa-home"></i> Home</a></li>
               <li><a href="/driver" onClick={(e) => { e.preventDefault(); navigate('/driver'); }}><i className="fas fa-user-md"></i> Driver Portal</a></li>
-              <li><a href="#" onClick={(e) => e.preventDefault()}><i className="fas fa-hospital"></i> Hospital Access</a></li>
+              <li><a href="#" onClick={(e) => e.preventDefault()} className="active-nav-link"><i className="fas fa-hospital-alt"></i> Hospital Portal</a></li>
             </ul>
           </nav>
-          <div className="hospital-info">
-            <div className="hospital-badge">
-              <i className="fas fa-hospital"></i> City General Hospital
-            </div>
+          <div className="hospital-profile-nav-info">
+            <span className="hosp-nav-name"><i className="fas fa-clinic-medical"></i> {hospitalName || 'Loading...'}</span>
+            <button onClick={handleLogout} className="hosp-nav-logout-btn">
+              <i className="fas fa-sign-out-alt"></i> Logout
+            </button>
           </div>
         </div>
       </header>
@@ -258,7 +365,7 @@ const HospitalDashboard = () => {
       <div className="hospital-dashboard-container main-content">
         <div className="page-title">
           <h2>Hospital Emergency Dashboard</h2>
-          <p>Manage incoming patients and coordinate with ambulance services</p>
+          <p>Coordinate emergency ambulance receptions and resource capacities in real-time</p>
         </div>
 
         {/* Dashboard capacity info */}
@@ -268,20 +375,51 @@ const HospitalDashboard = () => {
               <div className="status-icon">
                 <i className="fas fa-hospital-user"></i>
               </div>
-              <h3>Hospital Capacity Status</h3>
+              <h3>Emergency Resource Sync</h3>
             </div>
             <div className="resources-grid">
               <div className="resource-item">
-                <div className="resource-value">{capacity.icuBeds}</div>
-                <div className="resource-label">ICU Beds Available</div>
+                <div className="resource-value-editor">
+                  <button className="qty-btn" onClick={() => handleCapacityChange('generalBeds', -1)}><i className="fas fa-minus"></i></button>
+                  <span className="resource-value">{capacity.generalBeds}</span>
+                  <button className="qty-btn" onClick={() => handleCapacityChange('generalBeds', 1)}><i className="fas fa-plus"></i></button>
+                </div>
+                <div className="resource-label">General Beds</div>
               </div>
+
               <div className="resource-item">
-                <div className="resource-value">{capacity.ventilators}</div>
-                <div className="resource-label">Ventilators Available</div>
+                <div className="resource-value-editor">
+                  <button className="qty-btn" onClick={() => handleCapacityChange('icuBeds', -1)}><i className="fas fa-minus"></i></button>
+                  <span className="resource-value">{capacity.icuBeds}</span>
+                  <button className="qty-btn" onClick={() => handleCapacityChange('icuBeds', 1)}><i className="fas fa-plus"></i></button>
+                </div>
+                <div className="resource-label">ICU Beds</div>
               </div>
+
               <div className="resource-item">
-                <div className="resource-value">{capacity.erBeds}</div>
-                <div className="resource-label">ER Beds Available</div>
+                <div className="resource-value-editor">
+                  <button className="qty-btn" onClick={() => handleCapacityChange('ventilators', -1)}><i className="fas fa-minus"></i></button>
+                  <span className="resource-value">{capacity.ventilators}</span>
+                  <button className="qty-btn" onClick={() => handleCapacityChange('ventilators', 1)}><i className="fas fa-plus"></i></button>
+                </div>
+                <div className="resource-label">Ventilators</div>
+              </div>
+
+              <div className="resource-item">
+                <div className="resource-value-editor">
+                  <button className="qty-btn" onClick={() => handleCapacityChange('emergencyDoctors', -1)}><i className="fas fa-minus"></i></button>
+                  <span className="resource-value">{capacity.emergencyDoctors}</span>
+                  <button className="qty-btn" onClick={() => handleCapacityChange('emergencyDoctors', 1)}><i className="fas fa-plus"></i></button>
+                </div>
+                <div className="resource-label">On-Duty ER Doctors</div>
+              </div>
+            </div>
+            <div className="save-capacity-container">
+              <button className="save-capacity-btn" onClick={saveCapacityToDB} disabled={saving}>
+                {saving ? 'Broadcasting...' : 'Broadcast Capacity Sync'}
+              </button>
+              <div className="last-sync-timestamp">
+                Last broadcast: {lastUpdated.toLocaleTimeString()}
               </div>
             </div>
             {getCapacityStatus()}

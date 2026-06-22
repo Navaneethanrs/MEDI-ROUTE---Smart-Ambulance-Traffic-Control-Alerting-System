@@ -7,6 +7,8 @@ import DriverAuth from './pages/DriverAuth';
 import DriverDashboard from './pages/DriverDashboard';
 import PatientAdmit from './pages/PatientAdmit';
 import HospitalDashboard from './pages/HospitalDashboard';
+import HospitalAuth from './pages/HospitalAuth';
+import AdminDashboard from './pages/AdminDashboard';
 import HowItWorks from './pages/HowItWorks';
 import QuickGuide from './pages/QuickGuide';
 
@@ -22,6 +24,8 @@ function App() {
         <Route path="/driver/dashboard" element={<DriverDashboard />} />
         <Route path="/patient-admit" element={<PatientAdmit />} />
         <Route path="/hospital" element={<HospitalDashboard />} />
+        <Route path="/hospital/auth" element={<HospitalAuth />} />
+        <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/how" element={<HowItWorks />} />
         <Route path="/quick" element={<QuickGuide />} />
       </Routes>

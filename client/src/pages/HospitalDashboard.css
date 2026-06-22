@@ -615,3 +615,136 @@
         flex-direction: column;
     }
 }
+
+/* Dynamic Hospital Selector & Capacity Editor Styles */
+.hospital-select-wrapper {
+    display: flex;
+    align-items: center;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 6px 12px;
+    gap: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.hospital-select-wrapper i {
+    color: var(--accent);
+}
+
+.hospital-select {
+    border: none;
+    outline: none;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--secondary);
+    background: transparent;
+    cursor: pointer;
+    padding-right: 8px;
+}
+
+.resource-value-editor {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.qty-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid #cbd5e1;
+    background: white;
+    color: var(--secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 11px;
+}
+
+.qty-btn:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+}
+
+.save-capacity-container {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.save-capacity-btn {
+    background: linear-gradient(135deg, var(--accent) 0%, #3a6b8a 100%);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(69, 123, 157, 0.25);
+    transition: all 0.3s;
+}
+
+.save-capacity-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(69, 123, 157, 0.35);
+}
+
+.save-capacity-btn:disabled {
+    background: #cbd5e1;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+/* Auth Profile Nav Styles */
+.hospital-profile-nav-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.hosp-nav-name {
+    color: var(--secondary);
+    font-weight: 600;
+    font-size: 14px;
+    background-color: #f1faee;
+    padding: 6px 12px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid rgba(29, 53, 87, 0.1);
+}
+
+.hosp-nav-logout-btn {
+    background-color: transparent;
+    color: var(--primary);
+    border: 1px solid var(--primary);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.hosp-nav-logout-btn:hover {
+    background-color: var(--primary);
+    color: white;
+}
+
+.last-sync-timestamp {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 8px;
+}
+
+.active-nav-link {
+    color: var(--primary) !important;
+    font-weight: 600 !important;
+}
+
