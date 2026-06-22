@@ -352,7 +352,7 @@ const Contact = () => {
             <div className="map-placeholder">
               <i className="fas fa-map-marked-alt"></i>
               <h3>Medi Route Headquarters</h3>
-              <p>123 Healthcare Avenue, MedCity, MC 12345</p>
+              <p>Kongu Engineering College, Perundurai, Erode, Tamil Nadu - 638060</p>
             </div>
           </div>
         </div>

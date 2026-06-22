@@ -35,9 +35,7 @@ const About = () => {
               <p>Through real-time data sharing, intelligent routing, and automated traffic control, we're building a future where emergency medical response is faster, smarter, and more efficient than ever before.</p>
             </div>
             <div className="mission-image">
-              <div className="mission-image-placeholder">
-                <i className="fas fa-bullseye"></i>
-              </div>
+              <img src="/mission_ambulance_iot.png" alt="Medi Route IoT Ambulance Mission" style={{ width: '100%', borderRadius: '20px', boxShadow: '0 15px 35px rgba(0, 0, 0, 0.15)' }} />
             </div>
           </div>
         </div>
@@ -48,9 +46,7 @@ const About = () => {
         <div className="container">
           <div className="story-content">
             <div className="story-image">
-              <div className="story-image-placeholder">
-                <i className="fas fa-history"></i>
-              </div>
+              <img src="/story_control_center.png" alt="Medi Route Emergency Control Room" style={{ width: '100%', borderRadius: '20px', boxShadow: '0 15px 35px rgba(0, 0, 0, 0.15)' }} />
             </div>
             <div className="story-text">
               <h3>Our Story</h3>
@@ -112,6 +108,47 @@ const About = () => {
               </div>
               <h3>Accessibility</h3>
               <p>We strive to make our technology accessible to communities of all sizes and resources.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Team Section */}
+      <section className="team">
+        <div className="container">
+          <div className="section-title">
+            <h2>Meet Our Visionaries</h2>
+            <p>The innovative minds driving the smart emergency medical routing technology.</p>
+          </div>
+          <div className="team-grid">
+            <div className="team-card">
+              <div className="team-avatar-container">
+                <div className="team-avatar">
+                  <i className="fas fa-user-tie"></i>
+                </div>
+              </div>
+              <h3>Navaneethan Sankar</h3>
+              <p className="team-role">Co-Founder & IoT Solutions Architect</p>
+              <p className="team-bio">Specializes in smart traffic controllers, GPS routing networks, and embedding sensors in ambulances for real-time telemetry.</p>
+              <div className="team-socials">
+                <a href="https://www.linkedin.com/in/navaneethan-sankar-743751367/" target="_blank" rel="noopener noreferrer"><i className="fab fa-linkedin-in"></i></a>
+                <a href="https://www.instagram.com/n.o.v.a.__.18/" target="_blank" rel="noopener noreferrer"><i className="fab fa-instagram"></i></a>
+              </div>
+            </div>
+            
+            <div className="team-card">
+              <div className="team-avatar-container">
+                <div className="team-avatar">
+                  <i className="fas fa-user-astronaut"></i>
+                </div>
+              </div>
+              <h3>Niranjan Gobinathan</h3>
+              <p className="team-role">Co-Founder & Full-Stack Engineer</p>
+              <p className="team-bio">Handles real-time WebSocket communication channels, cloud dispatch APIs, and intelligent data dashboard interfaces.</p>
+              <div className="team-socials">
+                <a href="https://www.linkedin.com/in/niranjan-gobinathan-0b67b4321/" target="_blank" rel="noopener noreferrer"><i className="fab fa-linkedin-in"></i></a>
+                <a href="https://www.instagram.com/nirxnjxn_off_/" target="_blank" rel="noopener noreferrer"><i className="fab fa-instagram"></i></a>
+              </div>
             </div>
           </div>
         </div>
