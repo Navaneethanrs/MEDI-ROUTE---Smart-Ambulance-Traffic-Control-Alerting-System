@@ -316,6 +316,8 @@ const DriverDashboard = () => {
   // Dashboard Page/Section State: 'map', 'patient', 'confirm'
   const [activeSection, setActiveSection] = useState('map');
   const [userCity, setUserCity] = useState('Salem');
+  const [requestStatus, setRequestStatus] = useState('pending');
+  const [declineReason, setDeclineReason] = useState('');
 
   // Patient Form State
   const [patientForm, setPatientForm] = useState({
@@ -340,6 +342,7 @@ const DriverDashboard = () => {
   });
 
   const socketRef = useRef(null);
+  const fallbackHospitalsRef = useRef([]);
 
   useEffect(() => {
     // Authenticate and load profile
@@ -388,12 +391,15 @@ const DriverDashboard = () => {
       } catch (e) {}
 
       if (data.status === 'accepted') {
+        setRequestStatus('accepted');
         triggerNotification(
           'success',
           'Patient Accepted!',
           `${data.hospitalName} accepted your patient ${data.patientName}. Proceed to hospital.`
         );
       } else if (data.status === 'declined') {
+        setRequestStatus('declined');
+        setDeclineReason(data.reason || 'No capacity');
         triggerNotification(
           'error',
           'Patient Declined',
@@ -522,15 +528,15 @@ const DriverDashboard = () => {
         .bindPopup('<b>Your Ambulance (Moving)</b>')
         .openPopup();
 
-      // 10km search circle radius
+      // 20km search circle radius
       const searchCircle = L.circle([latitude, longitude], {
         color: '#2563eb',
         fillColor: '#3b82f6',
         fillOpacity: 0.08,
-        radius: 10000,
+        radius: 20000,
         weight: 1.5,
         dashArray: '5, 5'
-      }).addTo(map).bindPopup('10km Hospital Search Radius');
+      }).addTo(map).bindPopup('20km Hospital Search Radius');
 
       const hospitalLayerGroup = L.layerGroup().addTo(map);
 
@@ -547,7 +553,7 @@ const DriverDashboard = () => {
         }
       }, 150);
     } else {
-      // Map is already loaded, update ambulance marker and 10km search circle
+      // Map is already loaded, update ambulance marker and 20km search circle
       if (userMarkerRef.current) {
         userMarkerRef.current.setLatLng([latitude, longitude]);
       }
@@ -719,9 +725,9 @@ const DriverDashboard = () => {
       const overpassQuery = `
         [out:json][timeout:25];
         (
-          node["amenity"="hospital"](around:10000,${lat},${lng});
-          way["amenity"="hospital"](around:10000,${lat},${lng});
-          relation["amenity"="hospital"](around:10000,${lat},${lng});
+          node["amenity"="hospital"](around:20000,${lat},${lng});
+          way["amenity"="hospital"](around:20000,${lat},${lng});
+          relation["amenity"="hospital"](around:20000,${lat},${lng});
         );
         out center;
       `;
@@ -767,7 +773,7 @@ const DriverDashboard = () => {
           status: details.status,
           isEmergencyReady: details.isEmergencyReady
         };
-      }).filter(h => h.distanceValue <= 10)
+      }).filter(h => h.distanceValue <= 20)
         .sort((a, b) => a.distanceValue - b.distanceValue);
 
       if (mapped.length === 0) {
@@ -804,9 +810,17 @@ const DriverDashboard = () => {
       "Metro Emergency & Cardiac Center"
     ];
     
-    const fallbacks = hospitalNames.map((name, i) => {
-      const rLat = lat + (Math.random() - 0.5) * 0.05;
-      const rLng = lng + (Math.random() - 0.5) * 0.05;
+    // Generate stable coordinates once for fallback hospitals so they don't jump on GPS updates
+    if (fallbackHospitalsRef.current.length === 0) {
+      fallbackHospitalsRef.current = hospitalNames.map((name, i) => {
+        const rLat = lat + (Math.random() - 0.5) * 0.04;
+        const rLng = lng + (Math.random() - 0.5) * 0.04;
+        return { name, lat: rLat, lng: rLng, i };
+      });
+    }
+
+    const fallbacks = fallbackHospitalsRef.current.map((item) => {
+      const { name, lat: rLat, lng: rLng, i } = item;
       const dist = calculateDistance(lat, lng, rLat, rLng);
       const eta = Math.ceil((dist / 40) * 60);
       
@@ -1096,10 +1110,14 @@ const DriverDashboard = () => {
       };
 
       if (socketRef.current && socketRef.current.connected) {
+        setRequestStatus('pending');
+        setDeclineReason('');
         socketRef.current.emit('submit_patient_request', payload);
         triggerNotification('success', 'Success!', 'Patient admission request sent in real-time!');
         setActiveSection('confirm');
       } else {
+        setRequestStatus('pending');
+        setDeclineReason('');
         const res = await api.post('/patient', payload);
         if (res.status === 200) {
           triggerNotification('success', 'Success!', 'Patient data sent successfully!');
@@ -1117,6 +1135,8 @@ const DriverDashboard = () => {
   const resetDashboard = async () => {
     setActiveSection('map');
     setSelectedHospital(null);
+    setRequestStatus('pending');
+    setDeclineReason('');
     setPatientForm({
       patientName: '',
       age: '',
@@ -1280,7 +1300,7 @@ const DriverDashboard = () => {
             <div className="map-section">
               <div className="section-header">
                 <h3>Nearby Hospitals Map</h3>
-                <p>Hospitals within 10km radius are shown on the map</p>
+                <p>Hospitals within 20km radius are shown on the map</p>
               </div>
               <div ref={mapContainerRef} className="map-container" id="map"></div>
             </div>
@@ -1749,24 +1769,76 @@ const DriverDashboard = () => {
         {/* 4. Submission Confirmation Section */}
         {gpsActive && activeSection === 'confirm' && (
           <div className="confirmation-section">
-            <div className="confirmation-icon">
-              <i className="fas fa-check"></i>
-            </div>
-            <h3>Hospital Notified Successfully!</h3>
-            <p>Patient details have been transmitted to <strong>{currentSelectedHospital?.name}</strong>. The medical staff is preparing for arrival.</p>
-            
-            <div className="eta-display">
-              <div className="eta-value">{currentSelectedHospital?.eta}</div>
-              <div className="eta-label">Estimated Time of Arrival</div>
-            </div>
-            
-            <p>Traffic signals along your route are being optimized for green corridor priority.</p>
-            
-            <div className="action-buttons">
-              <button className="back-button" onClick={resetDashboard}>
-                <i className="fas fa-arrow-left"></i> Back to Dashboard
-              </button>
-            </div>
+            {requestStatus === 'accepted' ? (
+              <>
+                <div className="confirmation-icon" style={{ backgroundColor: '#2e7d32' }}>
+                  <i className="fas fa-check"></i>
+                </div>
+                <h3>Admission Request Accepted!</h3>
+                <p><strong>{currentSelectedHospital?.name}</strong> has accepted the admission. The medical staff is ready for arrival.</p>
+                
+                <div className="eta-display">
+                  <div className="eta-value">{currentSelectedHospital?.eta}</div>
+                  <div className="eta-label">Estimated Time of Arrival</div>
+                </div>
+                
+                <p>Traffic signals along your route are being optimized for green corridor priority.</p>
+                
+                <div className="action-buttons">
+                  <button className="back-button" onClick={resetDashboard}>
+                    <i className="fas fa-arrow-left"></i> Reset Dashboard
+                  </button>
+                </div>
+              </>
+            ) : requestStatus === 'declined' ? (
+              <>
+                <div className="confirmation-icon" style={{ backgroundColor: '#c62828' }}>
+                  <i className="fas fa-times"></i>
+                </div>
+                <h3 style={{ color: '#c62828' }}>Admission Request Declined</h3>
+                <p><strong>{currentSelectedHospital?.name}</strong> has declined the admission request.</p>
+                
+                <div className="decline-reason-box" style={{ 
+                  background: '#ffebee', 
+                  borderLeft: '4px solid #c62828', 
+                  padding: '12px', 
+                  margin: '15px 0', 
+                  borderRadius: '4px',
+                  textAlign: 'left'
+                }}>
+                  <strong>Reason for decline:</strong> {declineReason || 'No response or emergency capacity exceeded.'}
+                </div>
+                
+                <p>Please select another nearby hospital immediately to coordinate dispatch.</p>
+                
+                <div className="action-buttons">
+                  <button className="confirm-button" onClick={resetDashboard} style={{ width: '100%' }}>
+                    <i className="fas fa-hospital"></i> Choose Another Hospital
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="confirmation-icon pulse-animation" style={{ backgroundColor: '#f9a825' }}>
+                  <i className="fas fa-spinner fa-spin"></i>
+                </div>
+                <h3>Waiting for Hospital Response...</h3>
+                <p>Patient details have been transmitted to <strong>{currentSelectedHospital?.name}</strong>. Waiting for verification from their ER coordinator.</p>
+                
+                <div className="eta-display">
+                  <div className="eta-value">{currentSelectedHospital?.eta || 'Calculating...'}</div>
+                  <div className="eta-label">Estimated ETA (upon approval)</div>
+                </div>
+                
+                <p>Ready to establish emergency green corridor priority route.</p>
+                
+                <div className="action-buttons">
+                  <button className="back-button" onClick={resetDashboard} style={{ background: '#757575' }}>
+                    <i className="fas fa-times"></i> Cancel & Back
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         )}
       </div>
