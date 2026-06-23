@@ -374,7 +374,10 @@ const DriverDashboard = () => {
     if (!driver || !driver.email) return;
 
     // Connect to WebSocket
-    const socket = io('/', { path: '/socket.io' });
+    const socketUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+      ? `http://${window.location.hostname}:5000` 
+      : '/';
+    const socket = io(socketUrl, { path: '/socket.io' });
     socketRef.current = socket;
 
     // Register room
