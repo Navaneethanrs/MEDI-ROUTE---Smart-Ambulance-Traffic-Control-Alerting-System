@@ -681,11 +681,6 @@ app.post("/api/hospitals/sync", async (req, res) => {
         await dbHospital.save();
       }
 
-      // Skip if database hospital has been unapproved/marked fake
-      if (dbHospital.isApproved === false) {
-        continue;
-      }
-
       // Also check if a registered portal hospital exists with the same name
       // and overlay its live capacity (and approved portal metadata) onto this OSM result.
       let portalMatch = null;
@@ -696,10 +691,13 @@ app.post("/api/hospitals/sync", async (req, res) => {
         });
         if (portalMatch) {
           consumedRegisteredIds.add(portalMatch._id.toString());
-          if (portalMatch.isApproved === false) {
-            continue; // Skip if registered hospital was unapproved
-          }
         }
+      }
+
+      // Skip checking: prioritize checking portalMatch approval, else check dbHospital approval
+      const isApproved = portalMatch ? portalMatch.isApproved : dbHospital.isApproved;
+      if (isApproved === false) {
+        continue;
       }
 
       const capacitySource = portalMatch || dbHospital;
@@ -716,7 +714,7 @@ app.post("/api/hospitals/sync", async (req, res) => {
         cardiacTeams: capacitySource.cardiacTeams,
         status: capacitySource.status,
         lastUpdatedAt: capacitySource.lastUpdatedAt,
-        dbId: dbHospital._id,
+        dbId: capacitySource._id,
         // Surface portal metadata so driver card can show real phone/address
         address: capacitySource.address || h.address,
         phone: capacitySource.phone || h.phone,
