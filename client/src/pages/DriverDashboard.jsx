@@ -270,29 +270,17 @@ const DriverDashboard = () => {
   };
 
   const enrichSyncedHospitals = (syncedList, driverLat, driverLng) => {
-    return syncedList.map(hospital => {
+    return syncedList.filter(hospital => {
+      return hospital.lat !== null && hospital.lng !== null && 
+             hospital.lat !== undefined && hospital.lng !== undefined;
+    }).map(hospital => {
       let hLat = hospital.lat;
       let hLng = hospital.lng;
       let distVal = hospital.distanceValue || 0;
       let distanceText = hospital.distance;
       let etaText = hospital.eta;
 
-      if (hLat === null || hLng === null || hLat === undefined || hLng === undefined) {
-        const dist = getDeterministicDistance(hospital.name);
-        distVal = dist;
-        const eta = Math.ceil((dist / 40) * 60);
-        distanceText = dist.toFixed(1) + ' km';
-        etaText = eta + ' min';
-
-        if (driverLat && driverLng) {
-          const angle = getDeterministicAngle(hospital.name);
-          const earthRadius = 6371; // km
-          const dLat = (dist * Math.cos(angle)) / earthRadius * (180 / Math.PI);
-          const dLng = (dist * Math.sin(angle)) / (earthRadius * Math.cos(driverLat * Math.PI / 180)) * (180 / Math.PI);
-          hLat = driverLat + dLat;
-          hLng = driverLng + dLng;
-        }
-      } else if (driverLat && driverLng) {
+      if (driverLat && driverLng) {
         const dist = calculateDistance(driverLat, driverLng, hLat, hLng);
         distVal = dist;
         const eta = Math.ceil((dist / 40) * 60);
