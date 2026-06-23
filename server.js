@@ -8,8 +8,8 @@ const { Server } = require("socket.io");
 
 const app = express();
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -621,6 +621,25 @@ app.post("/api/notifications/:id/read", async (req, res) => {
 // 🏥 HOSPITAL CAPACITIES APIs
 // =====================================================
 
+// Helper function to calculate distance between two coordinates in kilometers
+function getDistance(lat1, lon1, lat2, lon2) {
+  if (lat1 === lat2 && lon1 === lon2) return 0;
+  if (lat1 === null || lat1 === undefined || lon1 === null || lon1 === undefined ||
+      lat2 === null || lat2 === undefined || lon2 === null || lon2 === undefined) {
+    return Infinity;
+  }
+  const radlat1 = Math.PI * lat1 / 180;
+  const radlat2 = Math.PI * lat2 / 180;
+  const theta = lon1 - lon2;
+  const radtheta = Math.PI * theta / 180;
+  let dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+  if (dist > 1) dist = 1;
+  dist = Math.acos(dist);
+  dist = dist * 180 / Math.PI;
+  dist = dist * 60 * 1.1515 * 1.609344; // in kilometers
+  return dist;
+}
+
 // 🔄 Sync OSM Query Results with MongoDB database (registers new nodes, loads stored capacity)
 app.post("/api/hospitals/sync", async (req, res) => {
   try {
@@ -642,7 +661,10 @@ app.post("/api/hospitals/sync", async (req, res) => {
     const declinedList = driverEmail ? await DeclinedHospital.find({ driverEmail }) : [];
     const declinedNames = new Set(declinedList.map(d => normalize(d.hospitalName)));
 
-    // 3. Merge capacity from any registered portal hospital (matched by name) onto OSM results.
+    // Fetch all registered portal hospitals once
+    const registeredPortals = await Hospital.find({ email: { $exists: true, $ne: null } });
+
+    // 3. Merge capacity from any registered portal hospital onto OSM results.
     for (const h of hospitals) {
       const hNameNorm = normalize(h.name);
       
@@ -681,17 +703,37 @@ app.post("/api/hospitals/sync", async (req, res) => {
         await dbHospital.save();
       }
 
-      // Also check if a registered portal hospital exists with the same name
-      // and overlay its live capacity (and approved portal metadata) onto this OSM result.
+      // Find matching portal hospital by exact name or substring + proximity
       let portalMatch = null;
       if (h.name) {
-        portalMatch = await Hospital.findOne({
-          email: { $exists: true, $ne: null },
-          name: { $regex: `^${normalize(h.name).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, $options: "i" }
-        });
-        if (portalMatch) {
-          consumedRegisteredIds.add(portalMatch._id.toString());
+        // A. Try exact match first
+        portalMatch = registeredPortals.find(p => normalize(p.name) === hNameNorm);
+        
+        // B. Try substring and proximity matching
+        if (!portalMatch) {
+          portalMatch = registeredPortals.find(p => {
+            const pNameNorm = normalize(p.name);
+            const nameContains = hNameNorm.includes(pNameNorm) || pNameNorm.includes(hNameNorm);
+            
+            if (nameContains) {
+              const distance = getDistance(h.lat, h.lng, p.lat, p.lng);
+              if (distance < 5) { // within 5km radius
+                return true;
+              }
+              const commonKeywords = ["perundurai", "salem", "erode", "nandha", "dharan"];
+              for (const kw of commonKeywords) {
+                if (hNameNorm.includes(kw) && (pNameNorm.includes(kw) || normalize(p.address).includes(kw))) {
+                  return true;
+                }
+              }
+            }
+            return false;
+          });
         }
+      }
+
+      if (portalMatch) {
+        consumedRegisteredIds.add(portalMatch._id.toString());
       }
 
       // Skip checking: prioritize checking portalMatch approval, else check dbHospital approval
