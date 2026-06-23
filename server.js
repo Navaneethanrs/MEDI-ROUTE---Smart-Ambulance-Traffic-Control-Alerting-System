@@ -63,6 +63,7 @@ const patientSchema = new mongoose.Schema({
   medicalNeeds: [String],
   additionalNotes: String,
   selectedHospital: String,
+  hospitalId: String,
   driverEmail: String,
   location: {
     latitude: Number,

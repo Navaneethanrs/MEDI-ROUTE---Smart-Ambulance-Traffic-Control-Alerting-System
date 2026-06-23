@@ -102,9 +102,12 @@ const HospitalDashboard = () => {
       if (response.status === 200) {
         // Filter patients for this hospital
         const filtered = response.data.filter(p => 
-          p.hospitalId === dbId || 
-          p.selectedHospital === hospitalName || 
-          (p.selectedHospital && hospitalName && p.selectedHospital.toLowerCase() === hospitalName.toLowerCase())
+          p.hospitalId === dbId ||
+          p.selectedHospital === hospitalName ||
+          (p.selectedHospital && hospitalName && (
+            p.selectedHospital.toLowerCase().includes(hospitalName.toLowerCase()) ||
+            hospitalName.toLowerCase().includes(p.selectedHospital.toLowerCase())
+          ))
         );
         setPatients(filtered);
         setErrorText('');
